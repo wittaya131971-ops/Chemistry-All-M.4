@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry M4 - เกมเรียนรู้เคมี ม.4 สสวท.</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        prompt: ['Prompt', 'sans-serif'],
+                        sarabun: ['Sarabun', 'sans-serif'],
+                    },
+                    colors: {
+                        chem: {
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            accent: '#38bdf8',
+                            purple: '#c084fc',
+                            neon: '#2dd4bf',
+                            pink: '#f472b6',
+                            gold: '#fbbf24'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #0b0f19;
+            color: #f1f5f9;
+        }
+        h1, h2, h3, h4, h5, h6, .font-heading {
+            font-family: 'Prompt', sans-serif;
+        }
+        .periodic-grid {
+            display: grid;
+            grid-template-columns: repeat(18, minmax(0, 1fr));
+            gap: 2px;
+        }
+        @media (max-width: 768px) {
+            .periodic-container {
+                overflow-x: auto;
+            }
+            .periodic-grid {
+                min-width: 750px;
+            }
+        }
+        .element-card {
+            aspect-ratio: 1;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .element-card:hover {
+            transform: scale(1.15);
+            z-index: 20;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38bdf8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-sky-500 selection:text-white">
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur border-b border-slate-800 px-4 py-3 shadow-lg">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-sky-500/20">
+                    <i class="fa-solid fa-flask"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading font-bold text-lg md:text-xl text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-teal-300 to-indigo-400">Chemistry M4</h1>
+                    <p class="text-xs text-slate-400 hidden sm:block">คลังความรู้และเกมทดสอบเคมี ม.4 สสวท.</p>
+                </div>
+            </div>
+
+            <!-- Profile / Score Summary Badge -->
+            <div class="flex items-center gap-3">
+                <div class="bg-slate-800/80 border border-slate-700/60 rounded-full px-3 py-1.5 flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                    <span id="user-score" class="font-bold text-amber-300 text-sm">0</span>
+                    <span class="text-xs text-slate-400">คะแนน</span>
+                </div>
+                <div id="user-rank-badge" class="hidden sm:flex bg-indigo-950/80 border border-indigo-700/50 text-indigo-300 px-3 py-1.5 rounded-full text-xs font-semibold items-center gap-1.5">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span id="user-rank-title">นักเรียนเคมีใหม่</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation Bar for Mobile & Desktop -->
+    <nav class="bg-slate-900 border-b border-slate-800/80 sticky top-[61px] z-40">
+        <div class="max-w-7xl mx-auto flex justify-around md:justify-center md:gap-8 text-xs md:text-sm font-medium">
+            <button onclick="switchTab('periodic')" id="nav-periodic" class="tab-btn px-4 py-3 flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-sky-400 transition">
+                <i class="fa-solid fa-table-cells"></i> <span>ตารางธาตุ</span>
+            </button>
+            <button onclick="switchTab('lessons')" id="nav-lessons" class="tab-btn px-4 py-3 flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-sky-400 transition">
+                <i class="fa-solid fa-book-open"></i> <span>บทเรียน ม.4</span>
+            </button>
+            <button onclick="switchTab('quizzes')" id="nav-quizzes" class="tab-btn px-4 py-3 flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-sky-400 transition">
+                <i class="fa-solid fa-gamepad"></i> <span>ควิซตะลุยโจทย์</span>
+            </button>
+            <button onclick="switchTab('profile')" id="nav-profile" class="tab-btn px-4 py-3 flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-sky-400 transition">
+                <i class="fa-solid fa-award"></i> <span>ยศ/ความสำเร็จ</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Container for Views -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
+
+        <!-- TAB 1: PERIODIC TABLE -->
+        <section id="tab-periodic" class="tab-content space-y-6">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-sky-400 flex items-center gap-2">
+                            <i class="fa-solid fa-atom"></i> ตารางธาตุอินเทอร์แอคทีฟ (Interactive Periodic Table)
+                        </h2>
+                        <p class="text-slate-400 text-sm mt-1">คลิกเลือกโหมดด้านล่างเพื่อสังเกตแนวโน้มและคุณสมบัติของธาตุทั้ง 118 ธาตุ</p>
+                    </div>
+
+                    <!-- Mode Selectors -->
+                    <div class="flex flex-wrap gap-2">
+                        <select id="property-mode" onchange="updatePeriodicView()" class="bg-slate-800 border border-sky-500/30 text-sky-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-sky-400 font-medium">
+                            <option value="default">โหมดปกติ (ประเภทธาตุ)</option>
+                            <option value="radius">ขนาดอะตอม (Atomic Radius)</option>
+                            <option value="ie">พลังงานไอออนไนเซชัน (IE)</option>
+                            <option value="en">อิเล็กโทรเนกาติวิตี (EN)</option>
+                            <option value="ea">สัมพรรคภาพอิเล็กตรอน (EA)</option>
+                            <option value="ox">เลขออกซิเดชันเด่น (Oxidation State)</option>
+                            <option value="transition">กลุ่มธาตุแทรนซิชัน (Transition)</option>
+                            <option value="radioactive">ธาตุกัมมันตรังสี (Radioactive)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Color Scale Legend Bar -->
+                <div id="property-legend" class="mb-4 bg-slate-950/50 p-3 rounded-xl text-xs flex flex-wrap items-center justify-between gap-2 border border-slate-800">
+                    <span class="text-slate-400 font-semibold" id="legend-title">สัญลักษณ์สีประจำประเภท:</span>
+                    <div id="legend-items" class="flex flex-wrap gap-3"></div>
+                </div>
+
+                <!-- Periodic Table Grid Container -->
+                <div class="periodic-container overflow-x-auto pb-4">
+                    <div id="periodic-grid" class="periodic-grid min-w-[800px] text-center text-xs font-sans">
+                        <!-- Generated Dynamically by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Element Detail Modal/Card -->
+            <div id="element-detail-modal" class="hidden bg-slate-900 border border-slate-700/80 rounded-2xl p-6 shadow-2xl relative">
+                <button onclick="closeElementDetail()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div id="element-detail-content" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Dynamic Detail Content -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: LESSONS SUMMARY -->
+        <section id="tab-lessons" class="tab-content hidden space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-bold text-sky-400 flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark"></i> สรุปเนื้อหาบทเรียน เคมี ม.4 (สสวท.)
+                    </h2>
+                    <p class="text-slate-400 text-sm mt-1">สรุปกระชับ เข้าใจง่าย อ่านทบทวนก่อนทำแบบทดสอบ</p>
+                </div>
+                <div class="flex gap-2 overflow-x-auto pb-2 md:pb-0" id="lesson-chapter-buttons">
+                    <!-- Chapter buttons generated by JS -->
+                </div>
+            </div>
+
+            <div id="lesson-display-container" class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 md:p-8 space-y-6">
+                <!-- Dynamic Lesson Content -->
+            </div>
+        </section>
+
+        <!-- TAB 3: QUIZZES & GAMES -->
+        <section id="tab-quizzes" class="tab-content hidden space-y-6">
+            <!-- Chapter Selection for Quiz -->
+            <div id="quiz-selection-view" class="space-y-6">
+                <div class="text-center max-w-2xl mx-auto space-y-2">
+                    <h2 class="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">
+                        สนามสอบตะลุยโจทย์เคมี ม.4
+                    </h2>
+                    <p class="text-slate-400 text-sm">เลือกบทเรียนเพื่อทำแบบทดสอบ 20 ข้อ เก็บสะสมคะแนนเพื่ออัปเลเวลฉายานักเคมี</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="quiz-chapter-cards">
+                    <!-- Dynamically populated quiz chapter cards -->
+                </div>
+            </div>
+
+            <!-- Quiz Play Area -->
+            <div id="quiz-play-view" class="hidden max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-xl">
+                <!-- Quiz Header Progress -->
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div>
+                        <span id="quiz-chapter-title" class="text-xs font-semibold text-sky-400 uppercase tracking-wider">บทที่ 1</span>
+                        <h3 class="text-lg font-bold text-slate-100">แบบทดสอบท้ายบท</h3>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400">ข้อที่</span>
+                        <span id="quiz-current-num" class="text-lg font-bold text-teal-400">1</span>
+                        <span class="text-xs text-slate-400">/ 20</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="quiz-progress-bar" class="bg-gradient-to-r from-sky-500 to-teal-400 h-full w-0 transition-all duration-300"></div>
+                </div>
+
+                <!-- Question Body -->
+                <div class="space-y-4">
+                    <div id="quiz-question-text" class="text-base md:text-lg font-medium text-slate-200 leading-relaxed">
+                        <!-- Question Text -->
+                    </div>
+
+                    <!-- Choices List -->
+                    <div id="quiz-options-container" class="space-y-3 pt-2">
+                        <!-- Options generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Explanation Box (Shows after answering) -->
+                <div id="quiz-explanation-box" class="hidden p-4 rounded-xl border border-slate-700 bg-slate-950/80 space-y-2">
+                    <div id="quiz-result-header" class="font-bold flex items-center gap-2"></div>
+                    <p id="quiz-explanation-text" class="text-sm text-slate-300 leading-relaxed"></p>
+                </div>
+
+                <!-- Quiz Navigation Buttons -->
+                <div class="flex justify-between items-center pt-4 border-t border-slate-800">
+                    <button onclick="quitQuiz()" class="px-4 py-2 text-sm text-slate-400 hover:text-white transition">
+                        <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
+                    </button>
+                    <button id="quiz-next-btn" onclick="nextQuestion()" class="hidden bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl transition shadow-lg shadow-sky-500/20">
+                        ข้อถัดไป <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Summary Result View -->
+            <div id="quiz-result-view" class="hidden max-w-xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-6 shadow-2xl">
+                <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 text-4xl shadow-lg shadow-amber-500/30">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-white">สรุปผลการทำแบบทดสอบ</h3>
+                    <p id="result-chapter-name" class="text-slate-400 text-sm mt-1">บทเรียน...</p>
+                </div>
+
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs text-slate-400">คะแนนที่ได้</p>
+                        <p id="result-score-num" class="text-3xl font-bold text-teal-400">0 / 20</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">คิดเป็นร้อยละ</p>
+                        <p id="result-percentage" class="text-3xl font-bold text-sky-400">0%</p>
+                    </div>
+                </div>
+
+                <p id="result-feedback-msg" class="text-sm text-slate-300 italic">"พยายามได้ดีมาก! ทบทวนเนื้อหาอีกครั้งเพื่อเพิ่มความแม่นยำ"</p>
+
+                <div class="flex gap-3 justify-center">
+                    <button onclick="backToQuizSelect()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-medium text-sm transition">
+                        <i class="fa-solid fa-list"></i> เลือกบทเรียนอื่น
+                    </button>
+                    <button onclick="retryCurrentQuiz()" class="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 rounded-xl font-bold text-sm transition shadow-lg shadow-sky-500/20">
+                        <i class="fa-solid fa-rotate-right"></i> ทำอีกครั้ง
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: PROFILE & RANKS -->
+        <section id="tab-profile" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6">
+                <div class="flex flex-col sm:flex-row items-center gap-6 border-b border-slate-800 pb-6">
+                    <div class="w-24 h-24 rounded-2xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-purple-600 p-1 shadow-xl">
+                        <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-sky-400 text-4xl">
+                            <i class="fa-solid fa-user-astronaut"></i>
+                        </div>
+                    </div>
+                    <div class="text-center sm:text-left space-y-1">
+                        <span class="text-xs font-semibold text-sky-400 uppercase tracking-widest">โปรไฟล์ผู้เล่น</span>
+                        <h3 class="text-2xl font-bold text-white">นักเรียนเคมี ม.4</h3>
+                        <p id="profile-current-rank" class="text-amber-400 font-medium text-sm">ยศปัจจุบัน: นักเคมีรุ่นเยาว์</p>
+                        <p class="text-xs text-slate-400">สะสมคะแนนจากการทำแบบทดสอบเพื่อเลื่อนระดับยศและปลดล็อกเกียรติบัตร</p>
+                    </div>
+                </div>
+
+                <!-- Rank List -->
+                <div>
+                    <h4 class="font-bold text-lg text-slate-200 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-medal text-amber-400"></i> ระดับยศทางเคมี (Ranks)
+                    </h4>
+                    <div id="rank-roadmap" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Dynamically Generated Rank List -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+        <p>Chemistry M4 Web App - พัฒนาขึ้นเพื่อการเรียนรู้ตามหลักสูตรเคมี ม.4 สสวท.</p>
+        <p class="mt-1">รองรับการใช้งานบน Desktop, Tablet และ Mobile</p>
+    </footer>
+
+    <script>
+        /* ==========================================================================
+           1. DATASET: 118 ELEMENTS WITH DETAILED PROPERTIES
+           ========================================================================== */
+        const elementsData = [
+            { num: 1, sym: "H", name: "ไฮโดรเจน", mass: "1.008", category: "nonmetal", period: 1, group: 1, radius: 53, ie: 1312, en: 2.20, ea: 73, ox: "+1, -1", transition: false, radioactive: false },
+            { num: 2, sym: "He", name: "ฮีเลียม", mass: "4.0026", category: "noble", period: 1, group: 18, radius: 31, ie: 2372, en: 0, ea: 0, ox: "0", transition: false, radioactive: false },
+            { num: 3, sym: "Li", name: "ลิเทียม", mass: "6.94", category: "alkali", period: 2, group: 1, radius: 167, ie: 520, en: 0.98, ea: 60, ox: "+1", transition: false, radioactive: false },
+            { num: 4, sym: "Be", name: "เบริลเลียม", mass: "9.0122", category: "alkaline", period: 2, group: 2, radius: 112, ie: 900, en: 1.57, ea: 0, ox: "+2", transition: false, radioactive: false },
+            { num: 5, sym: "B", name: "โบรอน", mass: "10.81", category: "metalloid", period: 2, group: 13, radius: 87, ie: 801, en: 2.04, ea: 27, ox: "+3", transition: false, radioactive: false },
+            { num: 6, sym: "C", name: "คาร์บอน", mass: "12.011", category: "nonmetal", period: 2, group: 14, radius: 67, ie: 1086, en: 2.55, ea: 122, ox: "+4, +2, -4", transition: false, radioactive: false },
+            { num: 7, sym: "N", name: "ไนโตรเจน", mass: "14.007", category: "nonmetal", period: 2, group: 15, radius: 56, ie: 1402, en: 3.04, ea: 7, ox: "+5, +3, -3", transition: false, radioactive: false },
+            { num: 8, sym: "O", name: "ออกซิเจน", mass: "15.999", category: "nonmetal", period: 2, group: 16, radius: 48, ie: 1314, en: 3.44, ea: 141, ox: "-2", transition: false, radioactive: false },
+            { num: 9, sym: "F", name: "ฟลูออรีน", mass: "18.998", category: "halogen", period: 2, group: 17, radius: 42, ie: 1681, en: 3.98, ea: 328, ox: "-1", transition: false, radioactive: false },
+            { num: 10, sym: "Ne", name: "นีออน", mass: "20.180", category: "noble", period: 2, group: 18, radius: 38, ie: 2081, en: 0, ea: 0, ox: "0", transition: false, radioactive: false },
+            { num: 11, sym: "Na", name: "โซเดียม", mass: "22.990", category: "alkali", period: 3, group: 1, radius: 190, ie: 496, en: 0.93, ea: 53, ox: "+1", transition: false, radioactive: false },
+            { num: 12, sym: "Mg", name: "แมกนีเซียม", mass: "24.305", category: "alkaline", period: 3, group: 2, radius: 145, ie: 738, en: 1.31, ea: 0, ox: "+2", transition: false, radioactive: false },
+            { num: 13, sym: "Al", name: "อะลูมิเนียม", mass: "26.982", category: "post-transition", period: 3, group: 13, radius: 118, ie: 578, en: 1.61, ea: 43, ox: "+3", transition: false, radioactive: false },
+            { num: 14, sym: "Si", name: "ซิลิคอน", mass: "28.085", category: "metalloid", period: 3, group: 14, radius: 111, ie: 787, en: 1.90, ea: 134, ox: "+4, -4", transition: false, radioactive: false },
+            { num: 15, sym: "P", name: "ฟอสฟอรัส", mass: "30.974", category: "nonmetal", period: 3, group: 15, radius: 98, ie: 1012, en: 2.19, ea: 72, ox: "+5, +3, -3", transition: false, radioactive: false },
+            { num: 16, sym: "S", name: "กำมะถัน", mass: "32.06", category: "nonmetal", period: 3, group: 16, radius: 88, ie: 1000, en: 2.58, ea: 200, ox: "+6, +4, -2", transition: false, radioactive: false },
+            { num: 17, sym: "Cl", name: "คลอรีน", mass: "35.45", category: "halogen", period: 3, group: 17, radius: 79, ie: 1251, en: 3.16, ea: 349, ox: "+7, +5, -1", transition: false, radioactive: false },
+            { num: 18, sym: "Ar", name: "อาร์กอน", mass: "39.948", category: "noble", period: 3, group: 18, radius: 71, ie: 1521, en: 0, ea: 0, ox: "0", transition: false, radioactive: false },
+            { num: 19, sym: "K", name: "โพแทสเซียม", mass: "39.098", category: "alkali", period: 4, group: 1, radius: 243, ie: 419, en: 0.82, ea: 48, ox: "+1", transition: false, radioactive: false },
+            { num: 20, sym: "Ca", name: "แคลเซียม", mass: "40.078", category: "alkaline", period: 4, group: 2, radius: 194, ie: 590, en: 1.00, ea: 2, ox: "+2", transition: false, radioactive: false },
+            { num: 21, sym: "Sc", name: "สแกนเดียม", mass: "44.956", category: "transition", period: 4, group: 3, radius: 184, ie: 633, en: 1.36, ea: 18, ox: "+3", transition: true, radioactive: false },
+            { num: 22, sym: "Ti", name: "ไทเทเนียม", mass: "47.867", category: "transition", period: 4, group: 4, radius: 176, ie: 659, en: 1.54, ea: 8, ox: "+4, +3", transition: true, radioactive: false },
+            { num: 23, sym: "V", name: "วาเนเดียม", mass: "50.942", category: "transition", period: 4, group: 5, radius: 171, ie: 651, en: 1.63, ea: 51, ox: "+5, +4, +3, +2", transition: true, radioactive: false },
+            { num: 24, sym: "Cr", name: "โครเมียม", mass: "51.996", category: "transition", period: 4, group: 6, radius: 166, ie: 653, en: 1.66, ea: 65, ox: "+6, +3, +2", transition: true, radioactive: false },
+            { num: 25, sym: "Mn", name: "แมงกานีส", mass: "54.938", category: "transition", period: 4, group: 7, radius: 161, ie: 717, en: 1.55, ea: 0, ox: "+7, +4, +2", transition: true, radioactive: false },
+            { num: 26, sym: "Fe", name: "เหล็ก", mass: "55.845", category: "transition", period: 4, group: 8, radius: 156, ie: 762, en: 1.83, ea: 15, ox: "+3, +2", transition: true, radioactive: false },
+            { num: 27, sym: "Co", name: "โคบอลต์", mass: "58.933", category: "transition", period: 4, group: 9, radius: 152, ie: 760, en: 1.88, ea: 64, ox: "+3, +2", transition: true, radioactive: false },
+            { num: 28, sym: "Ni", name: "นิกเกิล", mass: "58.693", category: "transition", period: 4, group: 10, radius: 149, ie: 737, en: 1.91, ea: 112, ox: "+2, +3", transition: true, radioactive: false },
+            { num: 29, sym: "Cu", name: "ทองแดง", mass: "63.546", category: "transition", period: 4, group: 11, radius: 145, ie: 745, en: 1.90, ea: 119, ox: "+2, +1", transition: true, radioactive: false },
+            { num: 30, sym: "Zn", name: "สังกะสี", mass: "65.38", category: "transition", period: 4, group: 12, radius: 142, ie: 906, en: 1.65, ea: 0, ox: "+2", transition: true, radioactive: false },
+            { num: 31, sym: "Ga", name: "แกลเลียม", mass: "69.723", category: "post-transition", period: 4, group: 13, radius: 136, ie: 579, en: 1.81, ea: 29, ox: "+3", transition: false, radioactive: false },
+            { num: 32, sym: "Ge", name: "เจอร์เมเนียม", mass: "72.630", category: "metalloid", period: 4, group: 14, radius: 125, ie: 762, en: 2.01, ea: 119, ox: "+4, +2", transition: false, radioactive: false },
+            { num: 33, sym: "As", name: "สารหนู", mass: "74.922", category: "metalloid", period: 4, group: 15, radius: 114, ie: 947, en: 2.18, ea: 78, ox: "+5, +3, -3", transition: false, radioactive: false },
+            { num: 34, sym: "Se", name: "ซีลีเนียม", mass: "78.971", category: "nonmetal", period: 4, group: 16, radius: 103, ie: 941, en: 2.55, ea: 195, ox: "+6, +4, -2", transition: false, radioactive: false },
+            { num: 35, sym: "Br", name: "โบรมีน", mass: "79.904", category: "halogen", period: 4, group: 17, radius: 94, ie: 1140, en: 2.96, ea: 325, ox: "+5, +1, -1", transition: false, radioactive: false },
+            { num: 36, sym: "Kr", name: "คริปทอน", mass: "83.798", category: "noble", period: 4, group: 18, radius: 88, ie: 1351, en: 3.00, ea: 0, ox: "0", transition: false, radioactive: false },
+            { num: 37, sym: "Rb", name: "รูบิเดียม", mass: "85.468", category: "alkali", period: 5, group: 1, radius: 265, ie: 403, en: 0.82, ea: 47, ox: "+1", transition: false, radioactive: false },
+            { num: 38, sym: "Sr", name: "สตรอนเชียม", mass: "87.62", category: "alkaline", period: 5, group: 2, radius: 219, ie: 549, en: 0.95, ea: 5, ox: "+2", transition: false, radioactive: false },
+            { num: 39, sym: "Y", name: "อิตเทรียม", mass: "88.906", category: "transition", period: 5, group: 3, radius: 212, ie: 600, en: 1.22, ea: 30, ox: "+3", transition: true, radioactive: false },
+            { num: 40, sym: "Zr", name: "เซอร์โคเนียม", mass: "91.224", category: "transition", period: 5, group: 4, radius: 206, ie: 640, en: 1.33, ea: 41, ox: "+4", transition: true, radioactive: false },
+            { num: 41, sym: "Nb", name: "ไนโอเบียม", mass: "92.906", category: "transition", period: 5, group: 5, radius: 198, ie: 652, en: 1.6, ea: 86, ox: "+5, +3", transition: true, radioactive: false },
+            { num: 42, sym: "Mo", name: "โมลิบดีนัม", mass: "95.95", category: "transition", period: 5, group: 6, radius: 190, ie: 684, en: 2.16, ea: 72, ox: "+6", transition: true, radioactive: false },
+            { num: 43, sym: "Tc", name: "เทคนีเชียม", mass: "(98)", category: "transition", period: 5, group: 7, radius: 183, ie: 702, en: 1.9, ea: 53, ox: "+7, +4", transition: true, radioactive: true },
+            { num: 44, sym: "Ru", name: "รูทีเนียม", mass: "101.07", category: "transition", period: 5, group: 8, radius: 178, ie: 710, en: 2.2, ea: 101, ox: "+3, +4", transition: true, radioactive: false },
+            { num: 45, sym: "Rh", name: "โรเดียม", mass: "102.91", category: "transition", period: 5, group: 9, radius: 173, ie: 720, en: 2.28, ea: 110, ox: "+3", transition: true, radioactive: false },
+            { num: 46, sym: "Pd", name: "พัลเลเดียม", mass: "106.42", category: "transition", period: 5, group: 10, radius: 169, ie: 804, en: 2.20, ea: 54, ox: "+2, +4", transition: true, radioactive: false },
+            { num: 47, sym: "Ag", name: "เงิน", mass: "107.87", category: "transition", period: 5, group: 11, radius: 165, ie: 731, en: 1.93, ea: 126, ox: "+1", transition: true, radioactive: false },
+            { num: 48, sym: "Cd", name: "แคดเมียม", mass: "112.41", category: "transition", period: 5, group: 12, radius: 161, ie: 868, en: 1.69, ea: 0, ox: "+2", transition: true, radioactive: false },
+            { num: 49, sym: "In", name: "อินเดียม", mass: "114.82", category: "post-transition", period: 5, group: 13, radius: 156, ie: 558, en: 1.78, ea: 29, ox: "+3", transition: false, radioactive: false },
+            { num: 50, sym: "Sn", name: "ดีบุก", mass: "118.71", category: "post-transition", period: 5, group: 14, radius: 145, ie: 709, en: 1.96, ea: 107, ox: "+4, +2", transition: false, radioactive: false },
+            { num: 51, sym: "Sb", name: "พลวง", mass: "121.76", category: "metalloid", period: 5, group: 15, radius: 133, ie: 834, en: 2.05, ea: 103, ox: "+5, +3, -3", transition: false, radioactive: false },
+            { num: 52, sym: "Te", name: "เทลลูเรียม", mass: "127.60", category: "metalloid", period: 5, group: 16, radius: 123, ie: 869, en: 2.10, ea: 190, ox: "+6, +4, -2", transition: false, radioactive: false },
+            { num: 53, sym: "I", name: "ไอโอดีน", mass: "126.90", category: "halogen", period: 5, group: 17, radius: 115, ie: 1008, en: 2.66, ea: 295, ox: "+7, +5, -1", transition: false, radioactive: false },
+            { num: 54, sym: "Xe", name: "ซีนอน", mass: "131.29", category: "noble", period: 5, group: 18, radius: 108, ie: 1170, en: 2.60, ea: 0, ox: "0, +6", transition: false, radioactive: false },
+            { num: 55, sym: "Cs", name: "ซีเซียม", mass: "132.91", category: "alkali", period: 6, group: 1, radius: 298, ie: 376, en: 0.79, ea: 46, ox: "+1", transition: false, radioactive: false },
+            { num: 56, sym: "Ba", name: "แบเรียม", mass: "137.33", category: "alkaline", period: 6, group: 2, radius: 253, ie: 503, en: 0.89, ea: 14, ox: "+2", transition: false, radioactive: false },
+            // Lanthanides (57-71)
+            { num: 57, sym: "La", name: "แลนทานัม", mass: "138.91", category: "lanthanide", period: 6, group: 3, radius: 226, ie: 538, en: 1.10, ea: 50, ox: "+3", transition: true, radioactive: false },
+            { num: 58, sym: "Ce", name: "ซีเรียม", mass: "140.12", category: "lanthanide", period: 6, group: 3, radius: 210, ie: 534, en: 1.12, ea: 50, ox: "+3, +4", transition: true, radioactive: false },
+            { num: 59, sym: "Pr", name: "เพรซีโอดิเมียม", mass: "140.91", category: "lanthanide", period: 6, group: 3, radius: 247, ie: 527, en: 1.13, ea: 50, ox: "+3", transition: true, radioactive: false },
+            { num: 60, sym: "Nd", name: "นีโอดิเมียม", mass: "144.24", category: "lanthanide", period: 6, group: 3, radius: 206, ie: 533, en: 1.14, ea: 50, ox: "+3", transition: true, radioactive: false },
+            { num: 61, sym: "Pm", name: "โพรมีเทียม", mass: "(145)", category: "lanthanide", period: 6, group: 3, radius: 205, ie: 540, en: 1.13, ea: 50, ox: "+3", transition: true, radioactive: true },
+            { num: 62, sym: "Sm", name: "ซาแมเรียม", mass: "150.36", category: "lanthanide", period: 6, group: 3, radius: 238, ie: 545, en: 1.17, ea: 50, ox: "+3, +2", transition: true, radioactive: false },
+            { num: 63, sym: "Eu", name: "ยูโรเพียม", mass: "151.96", category: "lanthanide", period: 6, group: 3, radius: 231, ie: 547, en: 1.20, ea: 50, ox: "+3, +2", transition: true, radioactive: false },
+            { num: 64, sym: "Gd", name: "แกโดลิเนียม", mass: "157.25", category: "lanthanide", period: 6, group: 3, radius: 233, ie: 593, en: 1.20, ea: 50, ox: "+3", transition: true, radioactive: false },
+            { num: 65, sym: "Tb", name: "เทอร์เบียม", mass: "158.93", category: "lanthanide", period: 6, group: 3, radius: 225, ie: 566, en: 1.20, ea: 50, ox: "+3, +4", transition: true, radioactive: false },
+            { num: 66, sym: "Dy", name: "ดิสโพรเซียม", mass: "162.50", category: "lanthanide", period: 6, group: 3, radius: 228, ie: 573, en: 1.22, ea: 50, ox: "+3", transition: true, radioactive: false },
+            { num: 67, sym: "Ho", name: "โฮลเมียม", mass: "164.93", category: "lanthanide", period: 6, group: 3, radius: 226, ie: 581, en: 1.23, ea: 50, ox: "+3", transition: true, radioactive: false },
+            { num: 68, sym: "Er", name: "เออร์เบียม", mass: "167.26", category: "lanthanide", period: 6, group: 3, radius: 226, ie: 589, en: 1.24, ea: 50, ox: "+3", transition: true, radioactive: false },
+            { num: 69, sym: "Tm", name: "ทูเลียม", mass: "168.93", category: "lanthanide", period: 6, group: 3, radius: 222, ie: 597, en: 1.25, ea: 50, ox: "+3", transition: true, radioactive: false },
+            { num: 70, sym: "Yb", name: "อิตเทอร์เบียม", mass: "173.05", category: "lanthanide", period: 6, group: 3, radius: 222, ie: 603, en: 1.10, ea: 50, ox: "+3, +2", transition: true, radioactive: false },
+            { num: 71, sym: "Lu", name: "ลูทีเชียม", mass: "174.97", category: "lanthanide", period: 6, group: 3, radius: 217, ie: 523, en: 1.27, ea: 50, ox: "+3", transition: true, radioactive: false },
+            { num: 72, sym: "Hf", name: "แฮฟเนียม", mass: "178.49", category: "transition", period: 6, group: 4, radius: 208, ie: 658, en: 1.30, ea: 0, ox: "+4", transition: true, radioactive: false },
+            { num: 73, sym: "Ta", name: "แทนทาลัม", mass: "180.95", category: "transition", period: 6, group: 5, radius: 200, ie: 761, en: 1.50, ea: 31, ox: "+5", transition: true, radioactive: false },
+            { num: 74, sym: "W", name: "ทังสเตน", mass: "183.84", category: "transition", period: 6, group: 6, radius: 193, ie: 770, en: 2.36, ea: 79, ox: "+6", transition: true, radioactive: false },
+            { num: 75, sym: "Re", name: "เรเนียม", mass: "186.21", category: "transition", period: 6, group: 7, radius: 188, ie: 760, en: 1.90, ea: 14, ox: "+7, +4", transition: true, radioactive: false },
+            { num: 76, sym: "Os", name: "ออสเมียม", mass: "190.23", category: "transition", period: 6, group: 8, radius: 185, ie: 840, en: 2.20, ea: 106, ox: "+4, +8", transition: true, radioactive: false },
+            { num: 77, sym: "Ir", name: "อิริเดียม", mass: "192.22", category: "transition", period: 6, group: 9, radius: 180, ie: 880, en: 2.20, ea: 151, ox: "+4, +3", transition: true, radioactive: false },
+            { num: 78, sym: "Pt", name: "ทองคำขาว", mass: "195.08", category: "transition", period: 6, group: 10, radius: 177, ie: 870, en: 2.28, ea: 205, ox: "+4, +2", transition: true, radioactive: false },
+            { num: 79, sym: "Au", name: "ทองคำ", mass: "196.97", category: "transition", period: 6, group: 11, radius: 174, ie: 890, en: 2.54, ea: 223, ox: "+3, +1", transition: true, radioactive: false },
+            { num: 80, sym: "Hg", name: "ปรอท", mass: "200.59", category: "transition", period: 6, group: 12, radius: 171, ie: 1007, en: 2.00, ea: 0, ox: "+2, +1", transition: true, radioactive: false },
+            { num: 81, sym: "Tl", name: "แทลเลียม", mass: "204.38", category: "post-transition", period: 6, group: 13, radius: 156, ie: 589, en: 1.62, ea: 19, ox: "+1, +3", transition: false, radioactive: false },
+            { num: 82, sym: "Pb", name: "ตะกั่ว", mass: "207.2", category: "post-transition", period: 6, group: 14, radius: 154, ie: 715, en: 2.33, ea: 35, ox: "+2, +4", transition: false, radioactive: false },
+            { num: 83, sym: "Bi", name: "บิสมัท", mass: "208.98", category: "post-transition", period: 6, group: 15, radius: 143, ie: 703, en: 2.02, ea: 91, ox: "+3", transition: false, radioactive: false },
+            { num: 84, sym: "Po", name: "โพโลเนียม", mass: "(209)", category: "metalloid", period: 6, group: 16, radius: 135, ie: 812, en: 2.00, ea: 183, ox: "+2, +4", transition: false, radioactive: true },
+            { num: 85, sym: "At", name: "แอสทาทีน", mass: "(210)", category: "halogen", period: 6, group: 17, radius: 127, ie: 920, en: 2.20, ea: 270, ox: "-1, +1", transition: false, radioactive: true },
+            { num: 86, sym: "Rn", name: "เรดอน", mass: "(222)", category: "noble", period: 6, group: 18, radius: 120, ie: 1037, en: 2.20, ea: 0, ox: "0", transition: false, radioactive: true },
+            { num: 87, sym: "Fr", name: "แฟรนเซียม", mass: "(223)", category: "alkali", period: 7, group: 1, radius: 348, ie: 380, en: 0.70, ea: 46, ox: "+1", transition: false, radioactive: true },
+            { num: 88, sym: "Ra", name: "เรเดียม", mass: "(226)", category: "alkaline", period: 7, group: 2, radius: 283, ie: 509, en: 0.90, ea: 14, ox: "+2", transition: false, radioactive: true },
+            // Actinides (89-103)
+            { num: 89, sym: "Ac", name: "แอกทิเนียม", mass: "(227)", category: "actinide", period: 7, group: 3, radius: 260, ie: 499, en: 1.10, ea: 50, ox: "+3", transition: true, radioactive: true },
+            { num: 90, sym: "Th", name: "ทอเรียม", mass: "232.04", category: "actinide", period: 7, group: 3, radius: 237, ie: 587, en: 1.30, ea: 50, ox: "+4", transition: true, radioactive: true },
+            { num: 91, sym: "Pa", name: "โพรแทกทิเนียม", mass: "231.04", category: "actinide", period: 7, group: 3, radius: 243, ie: 568, en: 1.50, ea: 50, ox: "+5", transition: true, radioactive: true },
+            { num: 92, sym: "U", name: "ยูเรเนียม", mass: "238.03", category: "actinide", period: 7, group: 3, radius: 240, ie: 597, en: 1.38, ea: 50, ox: "+6, +4", transition: true, radioactive: true },
+            { num: 93, sym: "Np", name: "เนปทูเนียม", mass: "(237)", category: "actinide", period: 7, group: 3, radius: 221, ie: 604, en: 1.36, ea: 50, ox: "+5", transition: true, radioactive: true },
+            { num: 94, sym: "Pu", name: "พลูโทเนียม", mass: "(244)", category: "actinide", period: 7, group: 3, radius: 243, ie: 585, en: 1.28, ea: 50, ox: "+4, +6", transition: true, radioactive: true },
+            { num: 95, sym: "Am", name: "อะเมริเซียม", mass: "(243)", category: "actinide", period: 7, group: 3, radius: 244, ie: 578, en: 1.13, ea: 50, ox: "+3", transition: true, radioactive: true },
+            { num: 96, sym: "Cm", name: "คูเรียม", mass: "(247)", category: "actinide", period: 7, group: 3, radius: 245, ie: 581, en: 1.28, ea: 50, ox: "+3", transition: true, radioactive: true },
+            { num: 97, sym: "Bk", name: "เบอร์เคเลียม", mass: "(247)", category: "actinide", period: 7, group: 3, radius: 244, ie: 601, en: 1.30, ea: 50, ox: "+3, +4", transition: true, radioactive: true },
+            { num: 98, sym: "Cf", name: "แคลิฟอร์เนียม", mass: "(251)", category: "actinide", period: 7, group: 3, radius: 245, ie: 608, en: 1.30, ea: 50, ox: "+3", transition: true, radioactive: true },
+            { num: 99, sym: "Es", name: "ไอน์สไตเนียม", mass: "(252)", category: "actinide", period: 7, group: 3, radius: 245, ie: 619, en: 1.30, ea: 50, ox: "+3", transition: true, radioactive: true },
+            { num: 100, sym: "Fm", name: "เฟอร์เมียม", mass: "(257)", category: "actinide", period: 7, group: 3, radius: 245, ie: 627, en: 1.30, ea: 50, ox: "+3", transition: true, radioactive: true },
+            { num: 101, sym: "Md", name: "เมนเดเลเวียม", mass: "(258)", category: "actinide", period: 7, group: 3, radius: 245, ie: 635, en: 1.30, ea: 50, ox: "+3", transition: true, radioactive: true },
+            { num: 102, sym: "No", name: "โนเบเลียม", mass: "(259)", category: "actinide", period: 7, group: 3, radius: 245, ie: 642, en: 1.30, ea: 50, ox: "+2, +3", transition: true, radioactive: true },
+            { num: 103, sym: "Lr", name: "ลอเรนเซียม", mass: "(266)", category: "actinide", period: 7, group: 3, radius: 245, ie: 470, en: 1.30, ea: 50, ox: "+3", transition: true, radioactive: true },
+            { num: 104, sym: "Rf", name: "รัทเทอร์ฟอร์เดียม", mass: "(267)", category: "transition", period: 7, group: 4, radius: 157, ie: 580, en: 1.30, ea: 0, ox: "+4", transition: true, radioactive: true },
+            { num: 105, sym: "Db", name: "ดุบเนียม", mass: "(268)", category: "transition", period: 7, group: 5, radius: 149, ie: 660, en: 1.30, ea: 0, ox: "+5", transition: true, radioactive: true },
+            { num: 106, sym: "Sg", name: "ซีบอร์เกียม", mass: "(269)", category: "transition", period: 7, group: 6, radius: 143, ie: 750, en: 1.30, ea: 0, ox: "+6", transition: true, radioactive: true },
+            { num: 107, sym: "Bh", name: "โบห์เรียม", mass: "(270)", category: "transition", period: 7, group: 7, radius: 137, ie: 790, en: 1.30, ea: 0, ox: "+7", transition: true, radioactive: true },
+            { num: 108, sym: "Hs", name: "ฮัสเซียม", mass: "(277)", category: "transition", period: 7, group: 8, radius: 134, ie: 820, en: 1.30, ea: 0, ox: "+8", transition: true, radioactive: true },
+            { num: 109, sym: "Mt", name: "ไมต์เนเรียม", mass: "(278)", category: "transition", period: 7, group: 9, radius: 129, ie: 840, en: 1.30, ea: 0, ox: "+3", transition: true, radioactive: true },
+            { num: 110, sym: "Ds", name: "ดาร์มสตัดเทียม", mass: "(281)", category: "transition", period: 7, group: 10, radius: 128, ie: 860, en: 1.30, ea: 0, ox: "+4", transition: true, radioactive: true },
+            { num: 111, sym: "Rg", name: "เรินต์เกเนียม", mass: "(282)", category: "transition", period: 7, group: 11, radius: 121, ie: 1020, en: 1.30, ea: 0, ox: "+3", transition: true, radioactive: true },
+            { num: 112, sym: "Cn", name: "โคเปอร์นิเซียม", mass: "(285)", category: "transition", period: 7, group: 12, radius: 122, ie: 1150, en: 1.30, ea: 0, ox: "+2", transition: true, radioactive: true },
+            { num: 113, sym: "Nh", name: "นิโฮเนียม", mass: "(286)", category: "post-transition", period: 7, group: 13, radius: 136, ie: 700, en: 1.30, ea: 0, ox: "+1", transition: false, radioactive: true },
+            { num: 114, sym: "Fl", name: "ฟลีโรเวียม", mass: "(289)", category: "post-transition", period: 7, group: 14, radius: 143, ie: 823, en: 1.30, ea: 0, ox: "+2", transition: false, radioactive: true },
+            { num: 115, sym: "Mc", name: "มอสโกเวียม", mass: "(290)", category: "post-transition", period: 7, group: 15, radius: 162, ie: 530, en: 1.30, ea: 0, ox: "+1, +3", transition: false, radioactive: true },
+            { num: 116, sym: "Lv", name: "ลิเวอร์มอเรียม", mass: "(293)", category: "post-transition", period: 7, group: 16, radius: 175, ie: 620, en: 1.30, ea: 0, ox: "+2, +4", transition: false, radioactive: true },
+            { num: 117, sym: "Ts", name: "เทนเนสซีน", mass: "(294)", category: "halogen", period: 7, group: 17, radius: 165, ie: 740, en: 1.30, ea: 0, ox: "-1, +1", transition: false, radioactive: true },
+            { num: 118, sym: "Og", name: "ออกาเนสซอน", mass: "(294)", category: "noble", period: 7, group: 18, radius: 157, ie: 860, en: 1.30, ea: 0, ox: "0", transition: false, radioactive: true }
+        ];
+
+        /* ==========================================================================
+           2. DATASET: LESSON SUMMARIES (CHAPTERS 1-5)
+           ========================================================================== */
+        const lessonsData = [
+            {
+                id: 1,
+                title: "บทที่ 1: ความปลอดภัยและทักษะในปฏิบัติการเคมี",
+                summary: `
+                    <div class="space-y-4">
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-shield-halved"></i> 1. ความปลอดภัยในห้องปฏิบัติการเคมี</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                การทำปฏิบัติการเคมีต้องคำนึงถึงความปลอดภัยเป็นอันดับแรก สวมแว่นตานิรภัยและเสื้อกาวน์เสมอ 
+                                สารเคมีแบ่งตามประเภทความเสี่ยง เช่น สารไวไฟ สารกัดกร่อน สารพิษ และสารระเบิดได้ 
+                                หากสารเคมีสัมผัสผิวหนัง ให้ล้างด้วยน้ำสะอาดปริมาณมากทันทีอย่างน้อย 15 นาที
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-vial"></i> 2. อุปกรณ์วัดปริมาตรและมวล</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                • <b>บิวเรตต์ (Burette) และ ปิเปตต์ (Pipette):</b> อุปกรณ์ที่มีความแม่นยำสูงมากในการวัดปริมาตร<br>
+                                • <b>กระบอกตวง (Graduated Cylinder):</b> ความแม่นยำปานกลาง เหมาะกับการวัดปริมาตรทั่วไป<br>
+                                • <b>บีเกอร์ (Beaker) และ ขวดรูปชมพู่ (Erlenmeyer Flask):</b> ใช้สำหรับบรรจุหรือผสมสาร ไม่เหมาะใช้วัดปริมาตรอย่างแม่นยำ
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-calculator"></i> 3. เลขนัยสำคัญ (Significant Figures) และหน่วยวัด</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                • เลขนัยสำคัญคือจำนวนตัวเลขที่ได้จากการวัดอย่างมั่นใจ รวมกับตัวเลขจากการคาดเดาอีก 1 ตัว<br>
+                                • <b>หลักการนับ:</b> เลขที่ไม่ใช่ 0 นับทั้งหมด, เลข 0 ระหว่างตัวเลขนับเสมอ, เลข 0 ด้านหน้าสุดไม่นับ (เช่น 0.0025 มีนัยสำคัญ 2 ตัวคือ 2 และ 5)<br>
+                                • <b>การบวก-ลบ:</b> ยึดตามจำนวนตำแหน่งทศนิยมที่น้อยที่สุด<br>
+                                • <b>การคูณ-หาร:</b> ยึดตามจำนวนเลขนัยสำคัญที่น้อยที่สุด
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 2,
+                title: "บทที่ 2: อะตอมและตารางธาตุ",
+                summary: `
+                    <div class="space-y-4">
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-atom"></i> 1. วิวัฒนาการแบบจำลองอะตอม</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                • <b>ดอลตัน:</b> ทรงกลมตัน แบ่งแยกไม่ได้<br>
+                                • <b>ทอมสัน:</b> ทรงกลมประจุบวก มีอิเล็กตรอนประจุลบฝังอยู่ทั่วไป (พลาไรซ์/เค้กลูกเกด)<br>
+                                • <b>รัทเทอร์ฟอร์ด:</b> นิวเคลียสขนาดเล็กประจุบวกอยู่ตรงกลาง อิเล็กตรอนวิ่งรอบๆ พื้นที่ส่วนใหญ่เป็นว่างเปล่า<br>
+                                • <b>โบร์:</b> อิเล็กตรอนเคลื่อนที่เป็นชั้นๆ ตามระดับพลังงาน (n = 1, 2, 3...)<br>
+                                • <b>กลุ่มหมอก:</b> โอกาสที่จะพบอิเล็กตรอนรอบนิวเคลียส หนาแน่นใกล้นิวเคลียส
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-layer-group"></i> 2. อนุภาคและสัญลักษณ์นิวเคลียร์</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                อะตอมประกอบด้วย โปรตอน (p+), นิวตรอน (n0) และ อิเล็กตรอน (e-)<br>
+                                • <b>เลขอะตอม (Z):</b> จำนวนโปรตอน (บอกชนิดของธาตุ)<br>
+                                • <b>เลขอออพติค/มวล (A):</b> โปรตอน + นิวตรอน<br>
+                                • <b>ไอโซโทป (Isotope):</b> ธาตุชนิดเดียวกัน (p+ เท่ากัน) แต่มีนิวตรอนต่างกัน
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-chart-line"></i> 3. การจัดเรียงอิเล็กตรอนและแนวโน้มตารางธาตุ</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                • จัดตามระดับพลังงานหลัก: 2, 8, 18, 32... เวเลนซ์อิเล็กตรอนบอก "หมู่", จำนวนระดับพลังงานบอก "คาบ"<br>
+                                • <b>ขนาดอะตอม:</b> จากซ้ายไปขวาจะขนาดเล็กลง (แรงดึงนิวเคลียสเพิ่ม) จากบนลงล่างขนาดใหญ่ขึ้น<br>
+                                • <b>ค่า IE, EN, EA:</b> จากซ้ายไปขวามีแนวโน้มเพิ่มขึ้น จากบนลงล่างมีแนวโน้มลดลง
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 3,
+                title: "บทที่ 3: พันธะเคมี",
+                summary: `
+                    <div class="space-y-4">
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-link"></i> 1. ประเภทของพันธะเคมี</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                • <b>พันธะไอออนิก (Ionic Bond):</b> เกิดระหว่าง โลหะ (จ่าย e-) + อโลหะ (รับ e-) เกิดแรงดึงดูดทางไฟฟ้าระหว่างไอออนบวกและไอออนลบ<br>
+                                • <b>พันธะโคเวเลนต์ (Covalent Bond):</b> เกิดระหว่าง อโลหะ + อโลหะ โดยใช้อิเล็กตรอนร่วมกัน<br>
+                                • <b>พันธะโลหะ (Metallic Bond):</b> เกิดจากอะตอมโลหะอยู่รวมกัน อิเล็กตรอนเคลื่อนที่ได้อย่างอิสระทั่วก้อน (Sea of Electrons) นำไฟฟ้าและนำความร้อนได้ดี
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-cubes"></i> 2. รูปร่างโมเลกุลโคเวเลนต์ และสภาพขั้ว</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                ใช้ทฤษฎี VSEPR พิจารณาแรงผลักคู่อิเล็กตรอน:<br>
+                                • AX2 = เส้นตรง (180 องศา)<br>
+                                • AX3 = สามเหลี่ยมแบนราบ (120 องศา)<br>
+                                • AX4 = ทรงสี่หน้า (109.5 องศา)<br>
+                                • AX3E = พีระมิดฐานสามเหลี่ยม (มีขั้วเสมอ)<br>
+                                • AX2E2 = มุมงอ (เช่น H2O)
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-magnet"></i> 3. แรงยึดเหนี่ยวระหว่างโมเลกุล</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                • <b>แรงลอนดอน (London force):</b> แรงอย่างอ่อนระหว่างโมเลกุลไม่มีขั้ว ยิ่งมวลมากแรงยิ่งมาก<br>
+                                • <b>แรงดึงดูดระหว่างขั้ว (Dipole-dipole):</b> เกิดระหว่างโมเลกุลมีขั้ว<br>
+                                • <b>พันธะไฮโดรเจน (Hydrogen bond):</b> พันธะยึดเหนี่ยวที่แข็งแกร่ง เกิดเมื่อ H สร้างพันธะโดยตรงกับ F, O, N (เช่น H2O, NH3, HF)
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 4,
+                title: "บทที่ 4: โมลและสูตรเคมี",
+                summary: `
+                    <div class="space-y-4">
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-scale-balanced"></i> 1. ความหมายของโมล (Mole)</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                โมล (mol) คือหน่วยบอกปริมาณสาร โดยสาร 1 โมล จะมี:<br>
+                                • จำนวนอนุภาคเท่ากับ <b>6.02 x 10^23 อนุภาค</b> (เลขอาโวกาโดร)<br>
+                                • ปริมาตรก๊าซที่ STP เท่ากับ <b>22.4 ลิตร (dm3)</b><br>
+                                • มวลเท่ากับ มวลอะตอมหรือมวลโมเลกุล ในหน่วยกรัม (g)
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-square-root-variable"></i> 2. สูตรการแปลงปริมาณโมล</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                <b>n = g / M = N / (6.02 x 10^23) = V / 22.4</b><br>
+                                โดยที่:<br>
+                                • n = จำนวนโมล (mol)<br>
+                                • g = มวลของสาร (กรัม)<br>
+                                • M = มวลโมเลกุล หรือ มวลอะตอม (g/mol)<br>
+                                • N = จำนวนอนุภาค (อะตอม / โมเลกุล / ไอออน)<br>
+                                • V = ปริมาตรแก๊สที่ STP (dm3 หรือ ลิตร)
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-receipt"></i> 3. สูตรอย่างง่าย (Empirical) และสูตรโมเลกุล</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                • <b>สูตรเอมพิริกัล:</b> อัตราส่วนอย่างต่ำของจำนวนอะตอมในสารประกอบ คำนวณได้จากการแปลงมวลของธาตุแต่ละชนิดให้เป็นโมลแล้วทำเป็นอัตราส่วนจำนวนเต็มอย่างต่ำ<br>
+                                • <b>สูตรโมเลกุล:</b> (สูตรเอมพิริกัล)n = มวลโมเลกุล
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 5,
+                title: "บทที่ 5: สารละลายและปริมาณสารสัมพันธ์",
+                summary: `
+                    <div class="space-y-4">
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-flask-vial"></i> 1. ความเข้มข้นของสารละลาย</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                • <b>โมลาริตี (Molarity, M):</b> โมลของตัวละลาย / ปริมาตรสารละลาย (dm3 หรือ ลิตร)<br>
+                                • <b>โมแลลิตี (Molality, m):</b> โมลของตัวละลาย / มวลของตัวทำละลาย (kg)<br>
+                                • <b>ร้อยละโดยมวลหรือปริมาตร (% W/W, % V/V):</b> ปริมาณตัวละลายในสารละลาย 100 ส่วน<br>
+                                • <b>การเจือจางสารละลาย:</b> ใช้สูตร C1 x V1 = C2 x V2
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-vial-circle-check"></i> 2. สมการเคมีและปริมาณสารสัมพันธ์</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                สมการเคมีที่สมดุล สัมปสิทธิ์หน้าสารแสดงอัตราส่วนโดยโมลของสารที่ทำปฏิกิริยากันและผลิตภัณฑ์ที่เกิดขึ้น<br>
+                                ตัวอย่าง: N2 + 3H2 -> 2NH3 หมายความว่า N2 1 โมล ทำปฏิกิริยาพอดีกับ H2 3 โมล ได้ NH3 2 โมล
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-sky-500/20">
+                            <h4 class="font-bold text-sky-300 text-lg mb-2"><i class="fa-solid fa-chart-pie"></i> 3. สารกำหนดปริมาณ และร้อยละผลผลิต</h4>
+                            <p class="text-sm leading-relaxed text-slate-300">
+                                • <b>สารกำหนดปริมาณ (Limiting Reagent):</b> สารตั้งต้นที่หมดก่อน ซึ่งจะทำหน้าที่กำหนดปริมาณผลิตภัณฑ์สูงสุดที่จะเกิดขึ้น<br>
+                                • <b>ร้อยละผลผลิต (% Yield):</b> (ผลผลิตจริง / ผลผลิตตามทฤษฎี) x 100
+                            </p>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        /* ==========================================================================
+           3. DATASET: 100 QUIZ QUESTIONS (20 PER CHAPTER) - NO BAD CHARACTERS
+           ========================================================================== */
+        const quizzesData = {
+            1: [
+                { q: "1. อุปกรณ์ในข้อใดต่อไปนี้ใช้วัดปริมาตรของของเหลวได้อย่างแม่นยำสูงที่สุด?", options: ["A) บีเกอร์ (Beaker)", "B) ปิเปตต์ (Pipette)", "C) ขวดรูปชมพู่ (Erlenmeyer flask)", "D) ถ้วยตวง"], answer: 1, exp: "ปิเปตต์และบิวเรตต์เป็นอุปกรณ์วัดปริมาตรที่ออกแบบมาเพื่อให้มีความแม่นยำสูงมากเมื่อเทียบกับบีเกอร์หรือขวดรูปชมพู่" },
+                { q: "2. หากสารเคมีที่เป็นกรดแก่กระเด็นเข้าตา ควรปฏิบัติอย่างไรเป็นอันดับแรก?", options: ["A) เช็ดด้วยผ้าแห้งสะอาด", "B) ล้างตาด้วยน้ำสะอาดปริมาณมากทันทีอย่างน้อย 15 นาที", "C) หยอดตาด้ามะนาวเพื่อลดความเป็นกรด", "D) ปิดตาไว้แล้วรอพบแพทย์ทันทีโดยไม่ล้าง"], answer: 1, exp: "การล้างตาด้วยน้ำสะอาดปริมาณมากทันทีเป็นเวลาอย่างน้อย 15 นาทีจะช่วยเจือจางและลดการกัดกร่อนของสารเคมีได้อย่างรวดเร็วที่สุด" },
+                { q: "3. ตัวเลข 0.00350 มีจำนวนเลขนัยสำคัญกี่ตัว?", options: ["A) 2 ตัว", "B) 3 ตัว", "C) 5 ตัว", "D) 6 ตัว"], answer: 1, exp: "เลข 0 ด้านหน้าสุดไม่นับเป็นเลขนัยสำคัญ แต่นับเลข 3, 5 และ 0 ตัวท้ายสุด รวมเป็น 3 ตัว" },
+                { q: "4. ผลลัพธ์ของ 12.11 + 0.3 + 1.523 ตามหลักเลขนัยสำคัญควรบันทึกเป็นเท่าใด?", options: ["A) 13.933", "B) 13.93", "C) 13.9", "D) 14.0"], answer: 2, exp: "การบวกและลบเลขนัยสำคัญ ให้ยึดตามจำนวนตำแหน่งทศนิยมที่น้อยที่สุด (0.3 มีทศนิยม 1 ตำแหน่ง) ตอบ 13.9" },
+                { q: "5. สัญลักษณ์เตือนภัยสารเคมีรูป 'เปลวไฟ' หมายถึงสารเคมีประเภทใด?", options: ["A) สารกัดกร่อน", "B) สารไวไฟ", "C) สารพิษ", "D) สารกัมมันตรังสี"], answer: 1, exp: "สัญลักษณ์รูปเปลวไฟแสดงถึงสารไวไฟ (Flammable Substances) ที่ติดไฟได้ง่าย" },
+                { q: "6. การต้มสารเคมีในหลอดทดลอง ควรเอียงหลอดทดลองอย่างไรจึงจะปลอดภัย?", options: ["A) เอียง 45 องศา และหันปากหลอดไปทางที่ไม่มีคน", "B) ตั้งหลอดตรง 90 องศาตลอดเวลา", "C) เอียง 45 องศา และหันปากหลอดเข้าหาตัวเอง", "D) เขย่าหลอดรุนแรงขณะต้ม"], answer: 0, exp: "ต้องเอียงประมาณ 45 องศาและส่ายเบาๆ โดยหันปากหลอดไปยังบริเวณที่ไม่มีคนเพื่อป้องกันสารเดือดพุ่งใส่" },
+                { q: "7. ข้อใดคือหน่วย SI ของปริมาณสาร?", options: ["A) กรัม (g)", "B) โมล (mol)", "C) ลิตร (L)", "D) โมลาร์ (M)"], answer: 1, exp: "โมล (mole หรือ mol) คือหน่วยพื้นฐานในระบบ SI สำหรับวัดปริมาณของสาร" },
+                { q: "8. การอ่านปริมาตรของของเหลวในกระบอกตวงที่มีส่วนเว้าโค้งลง (Concave) ต้องมองในระดับใด?", options: ["A) มองระดับขอบบนสุดของของเหลว", "B) มองระดับส่วนโค้งต่ำสุดของของเหลวให้อยู่ในระดับสายตา", "C) มองจากด้านบนทำมุม 45 องศา", "D) มองจากด้านล่างทำมุม 45 องศา"], answer: 1, exp: "ต้องให้อยู่ในระดับสายตาและอ่านที่จุดต่ำสุดของท้องน้ำ (Meniscus) เพื่อความแม่นยำ" },
+                { q: "9. ข้อใดเป็นอุปกรณ์สำหรับเตรียมสารละลายให้ได้ปริมาตรที่แน่นอนเพียงค่าเดียว?", options: ["A) บีเกอร์", "B) ขวดกำหนดปริมาตร (Volumetric Flask)", "C) กระบอกตวง", "D) หลอดหยด"], answer: 1, exp: "ขวดกำหนดปริมาตรมีขีดบอกปริมาตรเพียงขีดเดียวบนคอขวด ออกแบบมาเพื่อเตรียมสารละลายที่มีความแม่นยำสูง" },
+                { q: "10. ผลคูณของ 2.5 x 3.42 ตามหลักเลขนัยสำคัญควรบันทึกเป็นเท่าใด?", options: ["A) 8.55", "B) 8.5", "C) 8.6", "D) 9.0"], answer: 2, exp: "การคูณ ยึดตามจำนวนเลขนัยสำคัญที่น้อยที่สุด (2.5 มี 2 ตัว) 2.5 x 3.42 = 8.55 ปัดเป็น 8.6 (มีเลขนัยสำคัญ 2 ตัว)" },
+                { q: "11. หน่วย 1 dm3 มีค่าเท่ากับกี่ cm3?", options: ["A) 10 cm3", "B) 100 cm3", "C) 1,000 cm3", "D) 10,000 cm3"], answer: 2, exp: "1 ลูกบาศก์เดซิเมตร (dm3) หรือ 1 ลิตร มีค่าเท่ากับ 1,000 ลูกบาศก์เซนติเมตร (cm3) หรือ 1,000 มิลลิลิตร" },
+                { q: "12. ข้อใดเป็นสัญลักษณ์เตือนภัยประเภท 'สารกัดกร่อน'?", options: ["A) รูปหัวกะโหลกไขว้", "B) รูปหลอดหยดหยดสารใส่ก้อนวัตถุและมือ", "C) รูปวงกลมมีไฟลุก", "D) รูปต้นไม้เหี่ยวและปลาตาย"], answer: 1, exp: "สัญลักษณ์หลอดทดลองหยดสารลงบนแผ่นวัสดุและมือ สื่อถึงสารกัดกร่อน (Corrosive)" },
+                { q: "13. เมื่อทิ้งสารเคมีที่เป็นกรดเข้มข้นลงสู่ท่อน้ำทิ้ง ควรทำอย่างไร?", options: ["A) เทลงท่อได้ทันที", "B) เจือจางด้วยน้ำมากๆ ก่อน หรือสะกิดด้วยเบสกลางก่อนทิ้ง", "C) ผสมกับน้ำมันก่อนทิ้ง", "D) เทลงถังขยะแห้ง"], answer: 1, exp: "ไม่ควรเทกรดเข้มข้นลงท่อโดยตรง ต้องทำลายความเป็นกรดหรือเจือจางด้วยน้ำปริมาณมากเพื่อป้องกันการกัดกร่อนท่อน้ำ" },
+                { q: "14. ข้อใดกล่าวถูกต้องเกี่ยวกับการเก็บรักษาสารโซเดียม (Na)?", options: ["A) เก็บในน้ำ", "B) เก็บในน้ำมันพาราฟิน", "C) เก็บในแอลกอฮอล์", "D) วางไว้ในอากาศเปิด"], answer: 1, exp: "โลหะโซเดียมทำปฏิกิริยารุนแรงกับน้ำและอากาศ จึงต้องเก็บไว้ในน้ำมันพาราฟินเพื่อป้องกันการสัมผัสความชื้น" },
+                { q: "15. เครื่องชั่งไฟฟ้า 4 ตำแหน่ง มีความละเอียดในการวัดเท่าใด?", options: ["A) 0.1 g", "B) 0.01 g", "C) 0.001 g", "D) 0.0001 g"], answer: 3, exp: "เครื่องชั่ง 4 ตำแหน่ง สามารถวัดได้ละเอียดถึง 0.0001 กรัม (0.1 มิลลิกรัม)" },
+                { q: "16. ข้อใดคือความผิดพลาดแบบ Systemic Error (ความผิดพลาดเชิงระบบ)?", options: ["A) มือสั่นขณะหยดสาร", "B) สเกลของบิวเรตต์พิมพ์ผิดพลาดมาจากโรงงาน", "C) สายตาเอียงขณะอ่านค่า", "D) กระแสลมทำให้น้ำหนักเครื่องชั่งแกว่ง"], answer: 1, exp: "Systemic Error เกิดจากเครื่องมือหรือวิธีการที่ไม่แม่นยำ ซึ่งจะผิดพลาดไปในทิศทางเดิมเสมอ เช่น เครื่องชั่งตั้งไม่ตรง หรือสเกลผิด" },
+                { q: "17. การนำสารเคมีที่เป็นของแข็งออกจากขวดบรรจุ ควรปฏิบัติอย่างไร?", options: ["A) ใช้มือหยิบโดยตรง", "B) ใช้ช้อนตักสารเคมีที่สะอาดและแห้ง", "C) เทสารลงฝามือแล้วค่อยเทใส่ภาชนะ", "D) ใช้ปลายปากกากระดกออก"], answer: 1, exp: "ต้องใช้ช้อนตักสารเคมีที่สะอาดและแห้งสนิท เพื่อป้องกันสารปนเปื้อนและอันตรายต่อผิวหนัง" },
+                { q: "18. ตัวเลข 50,000 มีจำนวนเลขนัยสำคัญกี่ตัว หากเขียนในรูป 5.0 x 10^4?", options: ["A) 1 ตัว", "B) 2 ตัว", "C) 4 ตัว", "D) 5 ตัว"], answer: 1, exp: "การเขียนในรูปสัญกรณ์วิทยาศาสตร์ A x 10^n จำนวนเลขนัยสำคัญพิจารณาจาก A เท่านั้น (5.0 มี 2 ตัว)" },
+                { q: "19. ถ้านักเรียนสูดดมแก๊สพิษเข้าไปในห้องปฏิบัติการ ควรทำอย่างไรเป็นสิ่งแรก?", options: ["A) ดื่มน้ำมากๆ", "B) นั่งพักในห้องเดิม", "C) รีบออกไปบริเวณที่มีอากาศถ่ายเทสะดวกทันที", "D) ยาพาราเซตามอล"], answer: 2, exp: "ต้องย้ายผู้ป่วยออกไปสูดอากาศบริสุทธิ์ในบริเวณที่มีอากาศถ่ายเทดีทันที" },
+                { q: "20. ข้อใดเรียงลำดับความแม่นยำของอุปกรณ์วัดปริมาตรจาก 'น้อยไปมาก' ได้ถูกต้อง?", options: ["A) ปิเปตต์ < กระบอกตวง < บีเกอร์", "B) บีเกอร์ < กระบอกตวง < ปิเปตต์", "C) กระบอกตวง < บีเกอร์ < ปิเปตต์", "D) ปิเปตต์ < บีเกอร์ < กระบอกตวง"], answer: 1, exp: "บีเกอร์มีความแม่นยำน้อยที่สุด ถัดมาคือกระบอกตวง และปิเปตต์มีความแม่นยำสูงสุด" }
+            ],
+            2: [
+                { q: "1. แบบจำลองอะตอมที่เสนอว่า 'อะตอมเป็นทรงกลมมีประจุบวก และมีอิเล็กตรอนประจุลบกระจายอยู่ทั่วไป' เป็นของใคร?", options: ["A) จอห์น ดอลตัน", "B) เจ เจ ทอมสัน", "C) เออร์เนสต์ รัทเทอร์ฟอร์ด", "D) นีลส์ โบร์"], answer: 1, exp: "เจ เจ ทอมสัน ค้นพบอิเล็กตรอนและเสนอแบบจำลองอะตอมทรงกลมประจุบวกที่มีอิเล็กตรอนฝังอยู่" },
+                { q: "2. การทดลองยิงอนุภาคแอลฟาใส่แผ่นทองคำบางๆ ของรัทเทอร์ฟอร์ด ทำให้ได้ข้อสรุปอย่างไร?", options: ["A) อะตอมแบ่งแยกไม่ได้", "B) นิวเคลียสมีขนาดเล็กมาก ประจุบวกโมลด์อยู่ตรงกลาง", "C) อิเล็กตรอนวิ่งเป็นชั้นๆ เหมือนดาวเคราะห์", "D) อะตอมประกอบด้วยกลุ่มหมอกประจุลบ"], answer: 1, exp: "อนุภาคส่วนใหญ่ทะลุผ่านแผ่นทองคำตรงๆ มีเพียงส่วนน้อยมากที่เบี่ยงเบนหรือสะท้อนกลับ แสดงว่าประจุบวกควบแน่นอยู่ในนิวเคลียสเล็กๆ ตรงกลาง" },
+                { q: "3. ธาตุ X มีสัญลักษณ์นิวเคลียร์คือ 23_11 X (เลขมวล 23 เลขอะตอม 11) ธาตุนี้มีจำนวนโปรตอน นิวตรอน และอิเล็กตรอนเท่าใด?", options: ["A) p=11, n=12, e=11", "B) p=11, n=23, e=11", "C) p=12, n=11, e=12", "D) p=11, n=11, e=12"], answer: 0, exp: "โปรตอน = เลขอะตอม (11), อิเล็กตรอน = 11 (เป็นกลาง), นิวตรอน = เลขมวล - เลขอะตอม = 23 - 11 = 12" },
+                { q: "4. ไอโซโทป (Isotopes) หมายถึง อะตอมของธาตุชนิดเดียวกันที่มีสิ่งใดเท่ากัน?", options: ["A) เลขมวลเท่ากัน", "B) จำนวนนิวตรอนเท่ากัน", "C) จำนวนโปรตอนเท่ากัน", "D) จำนวนโปรตอนและนิวตรอนเท่ากัน"], answer: 2, exp: "ไอโซโทป คือ อะตอมที่มีจำนวนโปรตอนเท่ากัน (ธาตุชนิดเดียวกัน) แต่มีจำนวนนิวตรอนต่างกัน" },
+                { q: "5. การจัดเรียงอิเล็กตรอนในระดับพลังงานหลักของธาตุ Ca (เลขอะตอม 20) คือข้อใด?", options: ["A) 2, 8, 10", "B) 2, 8, 8, 2", "C) 2, 18, 0", "D) 2, 8, 9, 1"], answer: 1, exp: "แคลเซียม (Z=20) จัดเรียงอิเล็กตรอนเป็น 2, 8, 8, 2 อยู่หมู่ 2 คาบ 4" },
+                { q: "6. ธาตุที่มีการจัดเรียงอิเล็กตรอนเป็น 2, 8, 7 อยู่ในหมู่และคาบใดของตารางธาตุ?", options: ["A) หมู่ 2 คาบ 7", "B) หมู่ 7 คาบ 3", "C) หมู่ 3 คาบ 7", "D) หมู่ 5 คาบ 3"], answer: 1, exp: "เวเลนซ์อิเล็กตรอน = 7 (หมู่ 7 หรือ 17) มีระดับพลังงาน 3 ชั้น (คาบ 3)" },
+                { q: "7. ขนาดอะตอมตามแนวโน้มในตารางธาตุ ข้อใดกล่าวถูกต้อง?", options: ["A) จากซ้ายไปขวาขนาดใหญ่ขึ้น จากบนลงล่างขนาดเล็กลง", "B) จากซ้ายไปขวาขนาดเล็กลง จากบนลงล่างขนาดใหญ่ขึ้น", "C) มีขนาดเท่ากันทุกธาตุ", "D) จากซ้ายไปขวาขนาดเล็กลง จากบนลงล่างขนาดเล็กลง"], answer: 1, exp: "ตามคาบ (ซ้าย->ขวา) ประจุในนิวเคลียสเพิ่มขึ้นดึงดูด e- ทำให้ขนาดเล็กลง ตามหมู่ (บน->ล่าง) ระดับพลังงานเพิ่มขึ้นทำให้ขนาดใหญ่ขึ้น" },
+                { q: "8. ธาตุใดมีค่าอิเล็กโทรเนกาติวิตี (EN) สูงที่สุดในตารางธาตุ?", options: ["A) ฟลูออรีน (F)", "B) ซีเซียม (Cs)", "C) ออกซิเจน (O)", "D) ฮีเลียม (He)"], answer: 0, exp: "ฟลูออรีน (F) มีค่า EN สูงที่สุดในตารางธาตุ (3.98) ดึงดูดอิเล็กตรอนคู่ร่วมพันธะได้ดีที่สุด" },
+                { q: "9. พลังงานไอออนไนเซชันลำดับที่ 1 (IE1) หมายถึงอะไร?", options: ["A) พลังงานที่ใช้ในการดึงนิวตรอนออกจากนิวเคลียส", "B) พลังงานที่คายออกมาเมื่อรับอิเล็กตรอน", "C) พลังงานน้อยที่สุดที่ใช้ในการดึงอิเล็กตรอน 1 ตัวออกจากอะตอมในสถานะแก๊ส", "D) พลังงานในการรวมอะตอม"], answer: 2, exp: "IE1 คือพลังงานต่ำสุดที่ต้องใช้เพื่อใสให้อิเล็กตรอนตัวนอกสุดหลุดออกจากอะตอมในสถานะแก๊ส" },
+                { q: "10. กลุ่มธาตุแทรนซิชัน (Transition Elements) มีลักษณะเด่นอย่างไร?", options: ["A) เป็นอโลหะทั้งหมด", "B) มีเลขออกซิเดชันได้หลายค่า และสารประกอบมักมีสี", "C) ไม่ทำปฏิกิริยากับสารใดๆ", "D) มีเวเลนซ์อิเล็กตรอนเท่ากับ 8 เสมอ"], answer: 1, exp: "ธาตุแทรนซิชันเป็นโลหะที่มีระดับพลังงาน subshell d หรือ f ไม่เต็ม มีเลขออกซิเดชันหลายค่า และสารประกอบมีสีสัน" },
+                { q: "11. อนุภาคแอลฟา (Alpha particle) มีสัญลักษณ์นิวเคลียร์เหมือนกับนิวเคลียสของธาตุใด?", options: ["A) ไฮโดรเจน (H)", "B) ฮีเลียม (4_2 He)", "C) ลิเทียม (Li)", "D) คาร์บอน (C)"], answer: 1, exp: "อนุภาคแอลฟา คือนิวเคลียสของฮีเลียม ประกอบด้วย 2 โปรตอน และ 2 นิวตรอน (4_2 He)" },
+                { q: "12. รังสีแกมมา (Gamma ray) คืออะไร?", options: ["A) อนุภาคประจุบวก", "B) อนุภาคประจุลบ", "C) คลื่นแม่เหล็กไฟฟ้าความถี่สูง ไม่มีประจุและไม่มีมวล", "D) กระแสอิเล็กตรอน"], answer: 2, exp: "รังสีแกมมาเป็นคลื่นแม่เหล็กไฟฟ้าที่มีพลังงานสูงมาก ไม่มีมวลและไม่มีประจุไฟฟ้า จึงมีอำนาจทะลุผ่านสูงที่สุด" },
+                { q: "13. ครึ่งชีวิต (Half-life) ของสารกัมมันตรังสี หมายถึงอะไร?", options: ["A) เวลาที่ใช้ในการสลายตัวจนหมดสิ้น", "B) เวลาที่สารกัมมันตรังสีสลายตัวเหลือครึ่งหนึ่งของปริมาณเดิม", "C) เวลาที่สารหยุดการสลายตัว", "D) ครึ่งหนึ่งของอายุจักรวาล"], answer: 1, exp: "ครึ่งชีวิต (t 1/2) คือระยะเวลาที่นิวเคลียสของธาตุกัมมันตรังสีสลายตัวจนเหลือจำนวนครึ่งหนึ่งของปริมาณเริ่มต้น" },
+                { q: "14. สารกัมมันตรังสีชนิดหนึ่งมีครึ่งชีวิต 5 วัน ถ้ามีสารนี้อยู่ 80 กรัม เมื่อเวลาผ่านไป 15 วัน จะเหลือสารนี้กี่กรัม?", options: ["A) 40 กรัม", "B) 20 กรัม", "C) 10 กรัม", "D) 5 กรัม"], answer: 2, exp: "ผ่านไป 15 วัน = 3 ครึ่งชีวิต (15/5 = 3): 80 -> 40 -> 20 -> 10 กรัม" },
+                { q: "15. ไอโซโทป คาร์บอน-14 (C-14) นิยมนำมาใช้ประโยชน์ในด้านใด?", options: ["A) ถนอมอาหาร", "B) หาอายุของวัตถุโบราณและซากสลายตัว", "C) รักษาโรคมะเร็ง", "D) ตรวจการทำงานของต่อมไทรอยด์"], answer: 1, exp: "C-14 ใช้ในการคำนวณหาอายุของซากสิ่งมีชีวิตและวัตถุโบราณทางโบราณคดี" },
+                { q: "16. ไอโอดีน-131 (I-131) นำมาใช้ประโยชน์ทางการแพทย์อย่างไร?", options: ["A) ตรวจและรักษาโรคเกี่ยวกับต่อมไทรอยด์", "B) ตรวจการไหลเวียนของโลหิต", "C) ฆ่าเชื้อโรคในอุปกรณ์แพทย์", "D) ทำโรงไฟฟ้านิวเคลียร์"], answer: 0, exp: "ไอโอดีนสะสมที่ต่อมไทรอยด์ จึงใช้ I-131 ในการตรวจติดตามและรักษาความผิดปกติของต่อมไทรอยด์" },
+                { q: "17. ข้อใดคือธาตุในกลุ่มแก๊สเฉียบ (Noble Gases)?", options: ["A) F, Cl, Br, I", "B) He, Ne, Ar, Kr", "C) Li, Na, K, Rb", "D) Fe, Co, Ni, Cu"], answer: 1, exp: "แก๊สเฉียบหรือแก๊สมีตระกูลคือธาตุหมู่ 18 (VIII A) ได้แก่ He, Ne, Ar, Kr, Xe, Rn" },
+                { q: "18. อะตอมของธาตุในหมู่เดียวกันมีสิ่งใดเหมือนกัน?", options: ["A) จำนวนระดับพลังงานเท่ากัน", "B) จำนวนเวเลนซ์อิเล็กตรอนเท่ากัน", "C) เลขมวลเท่ากัน", "D) ขนาดอะตอมเท่ากัน"], answer: 1, exp: "ธาตุในหมู่เดียวกันจะมีจำนวนเวเลนซ์อิเล็กตรอน (อิเล็กตรอนวงนอกสุด) เท่ากัน ทำให้มีสมบัติเคมีคล้ายกัน" },
+                { q: "19. เมื่ออะตอมของโลหะเสียอิเล็กตรอนไป จะกลายเป็นไอออนชนิดใดและมีขนาดเป็นอย่างไรเทียบกับอะตอมเดิม?", options: ["A) ไอออนบวก ขนาดใหญ่ขึ้น", "B) ไอออนบวก ขนาดเล็กลง", "C) ไอออนลบ ขนาดใหญ่ขึ้น", "D) ไอออนลบ ขนาดเล็กลง"], answer: 1, exp: "โลหะเสีย e- จะเกิดเป็นไอออนบวก แรงผลักระหว่าง e- ลดลง นิวเคลียสดึงดูดได้ดีขึ้น ส่งผลให้ขนาดไอออนเล็กลง" },
+                { q: "20. ธาตุอะลูมิเนียม (13_27 Al) เมื่อกลายเป็นไอออน Al3+ จะมีการจัดเรียงอิเล็กตรอนตรงกับข้อใด?", options: ["A) 2, 8, 3", "B) 2, 8", "C) 2, 8, 8", "D) 2, 8, 6"], answer: 1, exp: "Al ปกติจัดเรียง 2, 8, 3 (มี 13 e-) เมื่อเสียไป 3 e- กลายเป็น Al3+ จะเหลือ 10 e- จัดเรียงเป็น 2, 8" }
+            ],
+            3: [
+                { q: "1. พันธะเคมีชนิดใดเกิดจากการรวมตัวระหว่าง 'โลหะ กับ อโลหะ'?", options: ["A) พันธะโคเวเลนต์", "B) พันธะไอออนิก", "C) พันธะโลหะ", "D) พันธะไฮโดรเจน"], answer: 1, exp: "พันธะไอออนิกเกิดจากโลหะ (จ่าย e- เกิดไอออนบวก) และอโลหะ (รับ e- เกิดไอออนลบ) ยึดเหนี่ยวด้วยแรงไฟฟ้าสถิต" },
+                { q: "2. สารประกอบไอออนิกในสถานะใดที่ไม่นำไฟฟ้า แต่นำไฟฟ้าได้เมื่อหลอมเหลวหรือละลายน้ำ?", options: ["A) แก๊ส", "B) ของแข็ง", "C) สารละลาย", "D) ของเหลว"], answer: 1, exp: "ในสถานะของแข็ง ไอออนตรึงอยู่กับที่ในผลึกจึงไม่นำไฟฟ้า แต่เมื่อหลอมเหลวหรือละลายน้ำ ไอออนจะเคลื่อนที่ได้อย่างอิสระ" },
+                { q: "3. ข้อใดคือสูตรเคมีของสารประกอบที่เกิดระหว่าง Magnesium (Mg2+) กับ Nitrogen (N3-)?", options: ["A) MgN", "B) Mg2N3", "C) Mg3N2", "D) MgN2"], answer: 2, exp: "ใช้วิธีไขว้ประจุ: Mg2+ กับ N3- จะได้สูตร Mg3N2 (แมกนีเซียมไนไตรด์)" },
+                { q: "4. พันธะโคเวเลนต์ (Covalent Bond) เกิดจากลักษณะในข้อใด?", options: ["A) การถ่ายโอนอิเล็กตรอนอย่างสมบูรณ์", "B) การใช้อิเล็กตรอนร่วมกันระหว่างอโลหะกับอโลหะ", "C) แรงดึงดูดระหว่างโปรตอนในนิวเคลียส", "D) กลุ่มหมอกอิเล็กตรอนอิสระ"], answer: 1, exp: "พันธะโคเวเลนต์เกิดจากธาตุอโลหะนำเวเลนซ์อิเล็กตรอนมาร่วมกันเพื่อให้อยู่ในสภาวะเสถียรตามกฎแปด" },
+                { q: "5. โมเลกุล CO2 (คาร์บอนไดออกไซด์) มีรูปร่างโมเลกุลแบบใด?", options: ["A) มุมงอ", "B) เส้นตรง (Linear)", "C) สามเหลี่ยมแบนราบ", "D) ทรงสี่หน้า"], answer: 1, exp: "C เป็นอะตอมกลาง สร้างพันธะคู่ 2 พันธะกับ O ไม่มีอิเล็กตรอนคู่โดดเดี่ยว รูปร่างเป็นเส้นตรง มุมพันธะ 180 องศา" },
+                { q: "6. โมเลกุล H2O (น้ำ) มีรูปร่างโมเลกุลเป็นแบบใด?", options: ["A) เส้นตรง", "B) มุมงอ (Bent)", "C) ทรงสี่หน้า", "D) พีระมิดฐานสามเหลี่ยม"], answer: 1, exp: "O เป็นอะตอมกลาง มีพันธะเดี่ยว 2 พันธะ และมีอิเล็กตรอนคู่โดดเดี่ยว 2 คู่ แรงผลักทำให้เกิดรูปร่างมุมงอ" },
+                { q: "7. สารในข้อใดสามารถเกิด 'พันธะไฮโดรเจน' ระหว่างโมเลกุลได้?", options: ["A) CH4", "B) H2O", "C) HCl", "D) CO2"], answer: 1, exp: "พันธะไฮโดรเจนเกิดเมื่อ H สร้างพันธะโคเวเลนต์กับอะตอมที่มี EN สูงมาก ได้แก่ F, O, N (เช่น H2O, NH3, HF)" },
+                { q: "8. สมบัติการนำไฟฟ้าและความยืดหยุ่นตีเป็นแผ่นได้ของโลหะ อธิบายได้ด้วยทฤษฎีใด?", options: ["A) กฎทรงมวล", "B) แบบจำลองทะเลอิเล็กตรอน (Sea of Electrons)", "C) ทฤษฎี VSEPR", "D) กฎของอ็อกเตต"], answer: 1, exp: "พันธะโลหะประกอบด้วยไอออนบวกจมอยู่ในทะเลอิเล็กตรอนที่เคลื่อนที่ได้อิสระ ทำให้โลหะนำไฟฟ้าได้ดีและไม่แตกเมื่อถูกทุบ" },
+                { q: "9. โมเลกุล CCl4 (คาร์บอนเตตระคลอไรด์) มีสภาพขั้วของโมเลกุลอย่างไร?", options: ["A) มีขั้วแรงมาก", "B) ไม่มีขั้ว (Non-polar)", "C) เป็นไอออนิก", "D) เป็นพันธะไฮโดรเจน"], answer: 1, exp: "CCl4 มีรูปร่างทรงสี่หน้าสมบูรณ์ ผลรวมเวกเตอร์ของสภาพขั้วพันธะหักล้างกันหมด โมเลกุลจึงไม่มีขั้ว" },
+                { q: "10. ข้อใดคือสารโครงร่างตาข่ายเพชร (Covalent Network Solid)?", options: ["A) น้ำแข็ง (H2O)", "B) เพชร (Diamond - C)", "C) เกลือแกง (NaCl)", "D) คาร์บอนไดออกไซด์แห้ง"], answer: 1, exp: "เพชรเกิดจากอะตอมคาร์บอนต่อกันด้วยพันธะโคเวเลนต์เป็นโครงข่ายสามมิติ ทำให้มีความแข็งมากที่สุดและจุดหลอมเหลวสูงมาก" },
+                { q: "11. ตามกฎแปด (Octet Rule) อะตอมส่วนใหญ่พยายามจัดเรียงอิเล็กตรอนวงนอกสุดให้มีกี่ตัว?", options: ["A) 2 ตัว", "B) 6 ตัว", "C) 8 ตัว", "D) 18 ตัว"], answer: 2, exp: "กฎแปดระบุว่าอะตอมจะรวมตัวกันเพื่อปรับเวเลนซ์อิเล็กตรอนให้ครบ 8 เหมือนแก๊สเฉียบเพื่อความเสถียร" },
+                { q: "12. พันธะโคเวเลนต์แบบใดยึดเหนี่ยวแข็งแกร่งที่สุดระหว่างสองอะตอมเดิม?", options: ["A) พันธะเดี่ยว", "B) พันธะคู่", "C) พันธะสาม", "D) ทุกพันธะแข็งแรงเท่ากัน"], answer: 2, exp: "พันธะสามใช้อิเล็กตรอนร่วมกัน 3 คู่ (6 ตัว) มีความยาวพันธะสั้นที่สุดและพลังงานพันธะสูงที่สุด จึงแข็งแกร่งที่สุด" },
+                { q: "13. โมเลกุล NH3 (แอมโมเนีย) มีรูปร่างโมเลกุลแบบใด?", options: ["A) สามเหลี่ยมแบนราบ", "B) พีระมิดฐานสามเหลี่ยม (Trigonal Pyramidal)", "C) ทรงสี่หน้า", "D) เส้นตรง"], answer: 1, exp: "N มีอิเล็กตรอนคู่โดดเดี่ยว 1 คู่ ผลักแขนพันธะ N-H ทั้ง 3 แขนลงมา เกิดเป็นรูปร่างพีระมิดฐานสามเหลี่ยม" },
+                { q: "14. ข้อใดเป็นสารประกอบไอออนิกทั้งหมด?", options: ["A) CO2, H2O, NH3", "B) NaCl, MgO, KI", "C) CH4, C2H5OH, O2", "D) HCl, H2SO4, HNO3"], answer: 1, exp: "NaCl, MgO, KI เกิดจากโลหะ (Na, Mg, K) รวมตัวกับอโลหะ (Cl, O, I) จึงเป็นสารประกอบไอออนิกทั้งหมด" },
+                { q: "15. แรงลอนดอน (London Dispersion Forces) พบได้ในโมเลกุลประเภทใด?", options: ["A) พบเฉพาะโมเลกุลมีขั้ว", "B) พบเฉพาะสารประกอบไอออนิก", "C) พบในโมเลกุลโคเวเลนต์ทุกชนิด ทั้งมีขั้วและไม่มีขั้ว", "D) พบเฉพาะในโลหะ"], answer: 2, exp: "แรงลอนดอนเป็นแรงยึดเหนี่ยวชั่วคราวที่เกิดจากความไม่สมดุลของ e- ในช่วงเวลาสั้นๆ พบได้ในโมเลกุลโคเวเลนต์ทุกชนิด" },
+                { q: "16. สารที่มีจุดหลอมเหลวและจุดเดือดสูงที่สุดเนื่องจากเกิดพันธะไฮโดรเจนคือข้อใด?", options: ["A) H2S", "B) H2O", "C) H2Se", "D) H2Te"], answer: 1, exp: "H2O เกิดพันธะไฮโดรเจนแรงสูงมาก ส่งผลให้มีจุดเดือดสูงกว่าสารประกอบไฮไดรด์ของธาตุหมู่ 16 ชนิดอื่นอย่างชัดเจน" },
+                { q: "17. การเขียนสูตรไอออนิกของ แคลเซียมไอออน (Ca2+) กับ ฟลูออไรด์ไอออน (F-) ข้อใดถูกต้อง?", options: ["A) CaF", "B) Ca2F", "C) CaF2", "D) Ca2F2"], answer: 2, exp: "ไขว้ประจุ: Ca2+ และ F- จะได้สูตรเป็น CaF2 (แคลเซียมฟลูออไรด์)" },
+                { q: "18. พลังงานแลตทิซ (Lattice Energy) เกี่ยวข้องกับกระบวนการใดของสารประกอบไอออนิก?", options: ["A) พลังงานที่ใช้แยกไอออนบวกและลบในสถานะแก๊สออกจากกัน", "B) พลังงานที่ใช้ละลายน้ำ", "C) พลังงานในการหลอมเหลวโลหะ", "D) พลังงานดึงอิเล็กตรอน"], answer: 0, exp: "พลังงานแลตทิซคือพลังงานที่คายออกมาเมื่อไอออนบวกและลบในสถานะแก๊สรวมตัวกันเกิดเป็นโครงผลึกของแข็ง 1 โมล" },
+                { q: "19. มุมพันธะของโมเลกุลที่มีรูปร่างทรงสี่หน้าสมบูรณ์ (เช่น CH4) มีค่ากี่องศา?", options: ["A) 90 องศา", "B) 109.5 องศา", "C) 120 องศา", "D) 180 องศา"], answer: 1, exp: "รูปร่างทรงสี่หน้าสมบูรณ์ (Tetrahedral) มีมุมพันธะกว้าง 109.5 องศา" },
+                { q: "20. ข้อใดต่อไปนี้เป็นโมเลกุล 'ไม่มีขั้ว'?", options: ["A) H2O", "B) NH3", "C) O2", "D) HCl"], answer: 2, exp: "O2 ประกอบด้วยอะตอมชนิดเดียวกัน 2 อะตอม มีค่า EN เท่ากัน ผลต่าง EN เป็น 0 โมเลกุลจึงไม่มีขั้วสมบูรณ์" }
+            ],
+            4: [
+                { q: "1. สารประกอบ C6H12O6 (กลูโคส) 1 โมล มีมวลกี่กรัม? (กำหนด C=12, H=1, O=16)", options: ["A) 180 กรัม", "B) 90 กรัม", "C) 342 กรัม", "D) 60 กรัม"], answer: 0, exp: "มวลโมเลกุล = (6x12) + (12x1) + (6x16) = 72 + 12 + 96 = 180 g/mol" },
+                { q: "2. แก๊สคาร์บอนไดออกไซด์ (CO2) ปริมาตร 22.4 ลิตร (dm3) ที่ STP มีจำนวนโมลเท่าใด?", options: ["A) 0.5 โมล", "B) 1.0 โมล", "C) 2.0 โมล", "D) 22.4 โมล"], answer: 1, exp: "แก๊สใดๆ 1 โมล ที่ STP จะมีปริมาตรเท่ากับ 22.4 ลิตร (dm3)" },
+                { q: "3. สาร 1 โมล มีจำนวนอนุภาค (อะตอม/โมเลกุล) เท่ากับเท่าใด?", options: ["A) 3.01 x 10^23 อนุภาค", "B) 6.02 x 10^23 อนุภาค", "C) 1.20 x 10^24 อนุภาค", "D) 22.4 x 10^23 อนุภาค"], answer: 1, exp: "6.02 x 10^23 คือเลขอาโวกาโดร (Avogadro's number) ซึ่งเท่ากับปริมาณอนุภาคในสาร 1 โมล" },
+                { q: "4. แก๊สออกซิเจน (O2) มวล 16 กรัม คิดเป็นกี่โมล? (กำหนด O=16)", options: ["A) 0.25 โมล", "B) 0.5 โมล", "C) 1.0 โมล", "D) 2.0 โมล"], answer: 1, exp: "มวลโมเลกุล O2 = 16x2 = 32 g/mol; n = g / M = 16 / 32 = 0.5 โมล" },
+                { q: "5. น้ำ (H2O) 3.01 x 10^23 โมเลกุล มีปริมาณกี่โมล?", options: ["A) 0.5 โมล", "B) 1.0 โมล", "C) 1.5 โมล", "D) 2.0 โมล"], answer: 0, exp: "n = N / (6.02 x 10^23) = (3.01 x 10^23) / (6.02 x 10^23) = 0.5 โมล" },
+                { q: "6. สูตรเอมพิริกัล (Empirical Formula) หมายถึงอะไร?", options: ["A) สูตรแสดงจำนวนอะตอมที่แท้จริงในโมเลกุล", "B) สูตรอย่างง่ายที่แสดงอัตราส่วนจำนวนอะตอมด้วยเลขจำนวนเต็มอย่างต่ำ", "C) สูตรแสดงการเชื่อมต่อของพันธะ", "D) สูตรแสดงโครงสร้างสามมิติ"], answer: 1, exp: "สูตรเอมพิริกัลคือสูตรอย่างง่ายที่บอกอัตราส่วนของจำนวนอะตอมธาตุองค์ประกอบเป็นเลขจำนวนเต็มอย่างต่ำ" },
+                { q: "7. สารประกอบชนิดหนึ่งมีสูตรโมเลกุลเป็น C4H8O2 สูตรเอมพิริกัลของสารนี้คือข้อใด?", options: ["A) CH2O", "B) C2H4O", "C) C4H8O2", "D) C2H2O"], answer: 1, exp: "ทอนอัตราส่วน 4 : 8 : 2 ด้วยหาร 2 จะได้อัตราส่วนอย่างต่ำเป็น 2 : 4 : 1 นั่นคือ C2H4O" },
+                { q: "8. แก๊สมีเทน (CH4) 0.5 โมล ที่ STP มีปริมาตรกี่ลิตร?", options: ["A) 5.6 ลิตร", "B) 11.2 ลิตร", "C) 22.4 ลิตร", "D) 44.8 ลิตร"], answer: 1, exp: "V = n x 22.4 = 0.5 x 22.4 = 11.2 ลิตร" },
+                { q: "9. สารประกอบชนิดหนึ่งประกอบด้วย C 85.7% และ H 14.3% โดยมวล สูตรเอมพิริกัลคือข้อใด? (กำหนด C=12, H=1)", options: ["A) CH", "B) CH2", "C) CH3", "D) C2H5"], answer: 1, exp: "โมล C = 85.7/12 = 7.14 โมล; H = 14.3/1 = 14.3 โมล อัตราส่วน C:H = 7.14 : 14.3 = 1 : 2 ได้สูตร CH2" },
+                { q: "10. กรดแอซีติก (CH3COOH) มีมวลโมเลกุลเท่าใด? (กำหนด C=12, H=1, O=16)", options: ["A) 30 g/mol", "B) 46 g/mol", "C) 60 g/mol", "D) 90 g/mol"], answer: 2, exp: "สูตรรวม C2H4O2 = (12x2) + (1x4) + (16x2) = 24 + 4 + 32 = 60 g/mol" },
+                { q: "11. แก๊สคาร์บอนโมนอกไซด์ (CO) 2.8 กรัม มีจำนวนโมเลกุลเท่าใด? (กำหนด C=12, O=16)", options: ["A) 6.02 x 10^22 โมเลกุล", "B) 6.02 x 10^23 โมเลกุล", "C) 1.20 x 10^23 โมเลกุล", "D) 3.01 x 10^22 โมเลกุล"], answer: 0, exp: "M = 28 g/mol; n = 2.8/28 = 0.1 โมล; N = 0.1 x 6.02 x 10^23 = 6.02 x 10^22 โมเลกุล" },
+                { q: "12. ธาตุโซเดียม (Na) 23 กรัม มีจำนวนอะตอมเท่าใด? (กำหนด Na=23)", options: ["A) 1 อะตอม", "B) 23 อะตอม", "C) 6.02 x 10^23 อะตอม", "D) 1.20 x 10^24 อะตอม"], answer: 2, exp: "Na 23 กรัม เท่ากับ 1 โมลพอดี สาร 1 โมลจะมีจำนวนอะตอมเท่ากับเลขอาโวกาโดรคือ 6.02 x 10^23 อะตอม" },
+                { q: "13. ร้อยละโดยมวลของ O ในน้ำ (H2O) มีค่าประมาณเท่าใด? (กำหนด H=1, O=16)", options: ["A) 11.1%", "B) 33.3%", "C) 88.9%", "D) 50.0%"], answer: 2, exp: "มวลโมเลกุล H2O = 18; %O = (16 / 18) x 100 = 88.89%" },
+                { q: "14. สารเคมี A มีสูตรเอมพิริกัลเป็น CH2 และมีมวลโมเลกุลเท่ากับ 56 สูตรโมเลกุลของสารนี้คือข้อใด?", options: ["A) C2H4", "B) C3H6", "C) C4H8", "D) C5H10"], answer: 2, exp: "มวลสูตรเอมพิริกัล CH2 = 14; n = 56 / 14 = 4; สูตรโมเลกุล = (CH2)4 = C4H8" },
+                { q: "15. แก๊สไนโตรเจน (N2) 1 โมล มีมวลกี่กรัม? (กำหนด N=14)", options: ["A) 14 กรัม", "B) 28 กรัม", "C) 42 กรัม", "D) 56 กรัม"], answer: 1, exp: "แก๊สไนโตรเจนเป็นโมเลกุลคู่ N2 มวลโมเลกุล = 14 x 2 = 28 g/mol" },
+                { q: "16. สารละลายชนิดหนึ่งมี H2SO4 อยู่ 0.2 โมล จะมีกรดซัลฟิวริกกี่กรัม? (กำหนด H=1, S=32, O=16)", options: ["A) 9.8 กรัม", "B) 19.6 กรัม", "C) 49.0 กรัม", "D) 98.0 กรัม"], answer: 1, exp: "มวลโมเลกุล H2SO4 = 98 g/mol; g = n x M = 0.2 x 98 = 19.6 กรัม" },
+                { q: "17. ข้อใดคือความหมายของสภาวะมาตรฐานของแก๊ส (STP)?", options: ["A) อุณหภูมิ 25 องศาเซลเซียส ความดัน 1 บรรยากาศ", "B) อุณหภูมิ 0 องศาเซลเซียส ความดัน 1 บรรยากาศ", "C) อุณหภูมิ 100 องศาเซลเซียส ความดัน 1 บรรยากาศ", "D) อุณหภูมิ 0 องศาเซลเซียส ความดัน 0 บรรยากาศ"], answer: 1, exp: "STP (Standard Temperature and Pressure) คือ อุณหภูมิ 0 องศาเซลเซียส (273.15 K) และความดัน 1 atm" },
+                { q: "18. อะลูมิเนียม (Al) 5.4 กรัม มีจำนวนโมลเท่าใด? (กำหนด Al=27)", options: ["A) 0.1 โมล", "B) 0.2 โมล", "C) 0.5 โมล", "D) 2.0 โมล"], answer: 1, exp: "n = g / M = 5.4 / 27 = 0.2 โมล" },
+                { q: "19. สารใดต่อไปนี้ 1 โมล มีจำนวนอะตอมรวมมากที่สุด?", options: ["A) NH3", "B) CH4", "C) C2H6", "D) H2O"], answer: 2, exp: "C2H6 1 โมเลกุล ประกอบด้วย 2+6 = 8 อะตอม (มากที่สุดเมื่อเทียบกับ NH3=4, CH4=5, H2O=3)" },
+                { q: "20. แก๊สนีออน (Ne) 4.48 ลิตร ที่ STP มีกี่โมล?", options: ["A) 0.1 โมล", "B) 0.2 โมล", "C) 0.4 โมล", "D) 0.5 โมล"], answer: 1, exp: "n = V / 22.4 = 4.48 / 22.4 = 0.2 โมล" }
+            ],
+            5: [
+                { q: "1. สารละลาย NaCl เข้มข้น 2.0 mol/dm3 ปริมาตร 500 cm3 มีโซเดียมคลอไรด์ละลายอยู่กี่โมล?", options: ["A) 0.5 โมล", "B) 1.0 โมล", "C) 2.0 โมล", "D) 4.0 โมล"], answer: 1, exp: "n = C x V(ลิตร) = 2.0 x (500/1000) = 2.0 x 0.5 = 1.0 โมล" },
+                { q: "2. ต้องการเตรียมสารละลาย NaOH เข้มข้น 0.5 M ปริมาตร 250 cm3 ต้องใช้ NaOH กี่กรัม? (กำหนด Na=23, O=16, H=1)", options: ["A) 2.0 กรัม", "B) 5.0 กรัม", "C) 10.0 กรัม", "D) 20.0 กรัม"], answer: 1, exp: "n = C x V = 0.5 x 0.25 = 0.125 โมล; M(NaOH)=40; g = 0.125 x 40 = 5.0 กรัม" },
+                { q: "3. ถ้าต้องการเจือจางสารละลาย HCl จาก 6.0 M ปริมาตร 100 cm3 ให้กลายเป็น 1.5 M จะได้ปริมาตรสารละลายใหม่เป็นเท่าใด?", options: ["A) 250 cm3", "B) 400 cm3", "C) 600 cm3", "D) 800 cm3"], answer: 1, exp: "ใช้สูตร C1V1 = C2V2: 6.0 x 100 = 1.5 x V2 -> V2 = 600 / 1.5 = 400 cm3" },
+                { q: "4. จากสมการ N2 + 3H2 -> 2NH3 ถ้าใช้ N2 2 โมล ทำปฏิกิริยาพอดีกับ H2 จะเกิด NH3 กี่โมล?", options: ["A) 2 โมล", "B) 3 โมล", "C) 4 โมล", "D) 6 โมล"], answer: 2, exp: "อัตราส่วนโดยโมล N2 : NH3 = 1 : 2 ดังนั้นถ้าใช้ N2 2 โมล จะเกิด NH3 = 2 x 2 = 4 โมล" },
+                { q: "5. สารกำหนดปริมาณ (Limiting Reagent) คืออะไร?", options: ["A) สารตั้งต้นที่มีมวลมากที่สุด", "B) สารตั้งต้นที่ทำปฏิกิริยาหมดก่อน และเป็นตัวกำหนดปริมาณผลิตภัณฑ์ที่เกิดขึ้น", "C) สารที่เหลือหลังจบปฏิกิริยา", "D) ตัวเร่งปฏิกิริยา"], answer: 1, exp: "สารกำหนดปริมาณคือสารตั้งต้นที่หมดก่อน ทำให้ปฏิกิริยาสิ้นสุด และใช้คำนวณหาปริมาณผลิตภัณฑ์สูงสุดตามทฤษฎี" },
+                { q: "6. นำสารละลายน้ำตาลเข้มข้น 10% โดยมวล ปริมาตร 200 กรัม มีน้ำตาลละลายอยู่กี่กรัม?", options: ["A) 10 กรัม", "B) 20 กรัม", "C) 50 กรัม", "D) 100 กรัม"], answer: 1, exp: "มวลของตัวละลาย = (10 / 100) x 200 = 20 กรัม" },
+                { q: "7. หน่วยความเข้มข้น โมแลลิตี (Molality, m) คิดจากปริมาณโมลของตัวละลายต่อสิ่งใด?", options: ["A) ปริมาตรสารละลาย 1 ลิตร", "B) มวลของสารละลาย 1 กิโลกรัม", "C) มวลของตัวทำละลาย 1 กิโลกรัม", "D) ปริมาตรตัวทำละลาย 1 ลิตร"], answer: 2, exp: "โมแลลิตี (m) = โมลของตัวละลาย / มวลของตัวทำละลาย (kg)" },
+                { q: "8. ในปฏิกิริยา 2H2 + O2 -> 2H2O ถ้าผสม H2 4 โมล กับ O2 1 โมล สารใดเป็นสารกำหนดปริมาณ?", options: ["A) H2", "B) O2", "C) H2O", "D) ไม่มี สารหมดพร้อมกันพอดี"], answer: 1, exp: "อัตราส่วนต้องการ H2:O2 = 2:1 ถ้ามี O2 1 โมล ต้องใช้ H2 เพียง 2 โมล แต่มี่ H2 ถึง 4 โมล (เกินพอ) ดังนั้น O2 จึงหมดก่อนเป็นสารกำหนดปริมาณ" },
+                { q: "9. หากคำนวณผลิตภัณฑ์ตามทฤษฎีได้ 50 กรัม แต่เมื่อทดลองจริงได้ผลิตภัณฑ์ 40 กรัม ร้อยละของผลผลิต (% Yield) เป็นเท่าใด?", options: ["A) 70%", "B) 80%", "C) 90%", "D) 125%"], answer: 1, exp: "% Yield = (ผลผลิตจริง / ผลผลิตตามทฤษฎี) x 100 = (40 / 50) x 100 = 80%" },
+                { q: "10. ข้อใดแสดงสมดุลสมการการเผาไหม้สมบูรณ์ของแก๊สมีเทน CH4 + O2 -> CO2 + H2O ได้ถูกต้อง?", options: ["A) CH4 + O2 -> CO2 + H2O", "B) CH4 + 2O2 -> CO2 + 2H2O", "C) 2CH4 + 3O2 -> 2CO2 + 2H2O", "D) CH4 + 3O2 -> CO2 + 2H2O"], answer: 1, exp: "ดุล C: 1 เท่ากัน, ดุล H: ซ้าย 4 ขวาใส่ 2H2O, ดุล O: ขวามี 2+2=4 ใส่ 2O2 ได้ CH4 + 2O2 -> CO2 + 2H2O" },
+                { q: "11. การเตรียมสารละลายจากการดุลเจือจาง ใช้สูตรใด?", options: ["A) C1V1 = C2V2", "B) P1V1 = P2V2", "C) n = g/M", "D) % W/W = g/V"], answer: 0, exp: "C1V1 = C2V2 เป็นสูตรเจือจางสารละลายโดยที่จำนวนโมลของตัวละลายก่อนและหลังเจือจางคงที่" },
+                { q: "12. นำ K2SO4 1 โมล ละลายน้ำจนได้สารละลาย 2 dm3 สารละลายนี้จะมีความเข้มข้นกี่โมลาร์?", options: ["A) 0.5 M", "B) 1.0 M", "C) 2.0 M", "D) 4.0 M"], answer: 0, exp: "C = n / V = 1 โมล / 2 dm3 = 0.5 M (mol/dm3)" },
+                { q: "13. การเติมตัวทำละลายเพิ่มลงในสารละลายเดิม จะส่งผลอย่างไรต่อความเข้มข้นและจำนวนโมลของตัวละลาย?", options: ["A) ความเข้มข้นลดลง จำนวนโมลลดลง", "B) ความเข้มข้นลดลง จำนวนโมลเท่าเดิม", "C) ความเข้มข้นเท่าเดิม จำนวนโมลเพิ่มขึ้น", "D) ความเข้มข้นเพิ่มขึ้น จำนวนโมลเท่าเดิม"], answer: 1, exp: "การเจือจาง (เติมตัวทำละลาย) ทำให้ปริมาตรเพิ่มขึ้น ความเข้มข้นจึงลดลง แต่จำนวนโมลของตัวละลายยังคงเท่าเดิม" },
+                { q: "14. ข้อใดเป็นปฏิกิริยาประเภทเผาไหม้สมบูรณ์ของสารประกอบไฮโดรคาร์บอน?", options: ["A) ได้ผลิตภัณฑ์เป็น CO และ H2O", "B) ได้ผลิตภัณฑ์เป็น CO2 และ H2O", "C) ได้ผลิตภัณฑ์เป็น เขม่าคาร์บอน C และ H2O", "D) ได้เฉพาะ CO2"], answer: 1, exp: "การเผาไหม้สมบูรณ์ของไฮโดรคาร์บอนเมื่อมี O2 เพียงพอ จะได้ผลิตภัณฑ์เป็น แก๊สคาร์บอนไดออกไซด์ (CO2) และน้ำ (H2O) เท่านั้น" },
+                { q: "15. ถ้าต้องการเตรียมสารละลายน้ำตาลเข้มข้น 5% โดยมวลต่อปริมาตร จำนวน 100 cm3 ต้องใช้น้ำตาลกี่กรัม?", options: ["A) 2.5 กรัม", "B) 5 กรัม", "C) 10 กรัม", "D) 50 กรัม"], answer: 1, exp: "% W/V = (มวลตัวละลาย(g) / ปริมาตรสารละลาย(cm3)) x 100 -> 5 = (g / 100) x 100 -> g = 5 กรัม" },
+                { q: "16. เมื่อปรับอุณหภูมิสูงขึ้น ความสามารถในการละลายของแก๊สในของเหลวมักจะมีแนวโน้มอย่างไร?", options: ["A) เพิ่มขึ้น", "B) ลดลง", "C) เท่าเดิม", "D) เพิ่มขึ้นแล้วลดลง"], answer: 1, exp: "แก๊สจะละลายในของเหลวได้น้อยลงเมื่ออุณหภูมิสูงขึ้น (สังเกตจากน้ำสับปะรด/น้ำอัดลมเมื่อร้อนแก๊สจะฟุ้งออกจากน้ำ)" },
+                { q: "17. จากสมการ CaCO3 -> CaO + CO2 ถ้าใช้ CaCO3 100 กรัม สลายตัวสมบูรณ์ จะได้ CO2 กี่กรัม? (กำหนด Ca=40, C=12, O=16)", options: ["A) 22 กรัม", "B) 44 กรัม", "C) 56 กรัม", "D) 88 กรัม"], answer: 1, exp: "มวลโมเลกุล CaCO3 = 100, CO2 = 44; CaCO3 100 g (1 โมล) จะได้ CO2 1 โมล = 44 กรัมพอดี" },
+                { q: "18. สารละลายที่มีความเข้มข้น 1 ppm หมายถึงอะไร?", options: ["A) มีตัวละลาย 1 กรัม ในสารละลาย 100 กรัม", "B) มีตัวละลาย 1 กรัม ในสารละลาย 1,000,000 กรัม (1 ตัน)", "C) มีตัวละลาย 1 โมล ในสารละลาย 1 ลิตร", "D) มีตัวละลาย 100 กรัม ในสารละลาย 1 ลิตร"], answer: 1, exp: "ppm ย่อมาจาก Parts Per Million หมายถึง ส่วนในล้านส่วน (1 ใน 1,000,000)" },
+                { q: "19. ปฏิกิริยาดูดความร้อน (Endothermic Reaction) มีลักษณะอย่างไร?", options: ["A) ระบบคายความร้อนให้อย่างสิ่งแวดล้อม อุณหภูมิสิ่งแวดล้อมสูงขึ้น", "B) ระบบดูดความร้อนจากสิ่งแวดล้อม ทำให้อุณหภูมิสิ่งแวดล้อมลดลง (รู้สึกเย็น)", "C) ไม่มีการเปลี่ยนแปลงพลังงาน", "D) เกิดการระเบิดรุนแรงเสมอ"], answer: 1, exp: "ปฏิกิริยาดูดความร้อนจะดึงความร้อนจากสิ่งแวดล้อมเข้ามาในระบบ ส่งผลให้ภาชนะหรือสิ่งแวดล้อมรอบๆ มีอุณหภูมิลดลง" },
+                { q: "20. ข้อใด **ไม่ใช่** ปัจจัยที่มีผลต่ออัตราการเกิดปฏิกิริยาเคมี?", options: ["A) ความเข้มข้นของสารตั้งต้น", "B) อุณหภูมิ", "C) ตัวเร่งปฏิกิริยา", "D) ปริมาตรของภาชนะที่ไม่มีผลต่อความดัน"], answer: 3, exp: "ปัจจัยหลัก ได้แก่ ความเข้มข้น, พื้นที่ผิว, อุณหภูมิ, ตัวเร่งปฏิกิริยา และธรรมชาติของสารตั้งต้น" }
+            ]
+        };
+
+        /* ==========================================================================
+           4. DATASET: GAMIFICATION RANKS
+           ========================================================================== */
+        const ranksData = [
+            { minScore: 0, title: "นักเรียนเคมีใหม่", icon: "fa-seedling", color: "text-emerald-400" },
+            { minScore: 100, title: "ผู้ช่วยห้องปฏิบัติการ", icon: "fa-vial", color: "text-teal-400" },
+            { minScore: 300, title: "นักเคมีรุ่นเยาว์", icon: "fa-flask", color: "text-sky-400" },
+            { minScore: 600, title: "ปรมาจารย์ตารางธาตุ", icon: "fa-atom", color: "text-indigo-400" },
+            { minScore: 1000, title: "ศาสตราจารย์เคมี ม.4", icon: "fa-crown", color: "text-amber-400" }
+        ];
+
+        /* ==========================================================================
+           5. APP STATE VARIABLES
+           ========================================================================== */
+        let userTotalScore = 0;
+        let activeTab = "periodic";
+        let currentChapter = 1;
+        let currentQuizIndex = 0;
+        let currentQuizScore = 0;
+        let activeQuizQuestions = [];
+
+        /* ==========================================================================
+           6. INITIALIZATION & NAVIGATION FUNCTIONS
+           ========================================================================== */
+        window.onload = function() {
+            renderPeriodicTable();
+            renderLessonTab();
+            renderQuizTab();
+            renderProfileTab();
+            updateUserScoreUI();
+            switchTab('periodic');
+        };
+
+        function switchTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-sky-400', 'text-sky-400');
+                btn.classList.add('border-transparent', 'text-slate-400');
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-slate-400');
+                activeBtn.classList.add('border-sky-400', 'text-sky-400');
+            }
+        }
+
+        /* ==========================================================================
+           7. PERIODIC TABLE LOGIC
+           ========================================================================== */
+        function renderPeriodicTable() {
+            const gridContainer = document.getElementById("periodic-grid");
+            gridContainer.innerHTML = "";
+
+            // Create 7 periods x 18 groups layout map
+            for (let r = 1; r <= 7; r++) {
+                for (let c = 1; c <= 18; c++) {
+                    const elem = elementsData.find(e => e.period === r && e.group === c);
+                    if (elem) {
+                        gridContainer.appendChild(createElementCard(elem));
+                    } else {
+                        // Empty placeholder cell
+                        const empty = document.createElement("div");
+                        empty.className = "w-full h-full min-h-[42px]";
+                        gridContainer.appendChild(empty);
+                    }
+                }
+            }
+
+            // Append Lanthanides and Actinides Separate Rows
+            const divider = document.createElement("div");
+            divider.className = "col-span-18 h-4";
+            gridContainer.appendChild(divider);
+
+            // Lanthanides (57-71)
+            for (let c = 1; c <= 18; c++) {
+                if (c >= 3 && c <= 17) {
+                    const num = 57 + (c - 3);
+                    const elem = elementsData.find(e => e.num === num);
+                    gridContainer.appendChild(createElementCard(elem));
+                } else {
+                    const empty = document.createElement("div");
+                    gridContainer.appendChild(empty);
+                }
+            }
+
+            // Actinides (89-103)
+            for (let c = 1; c <= 18; c++) {
+                if (c >= 3 && c <= 17) {
+                    const num = 89 + (c - 3);
+                    const elem = elementsData.find(e => e.num === num);
+                    gridContainer.appendChild(createElementCard(elem));
+                } else {
+                    const empty = document.createElement("div");
+                    gridContainer.appendChild(empty);
+                }
+            }
+
+            updatePeriodicView();
+        }
+
+        function createElementCard(elem) {
+            const card = document.createElement("div");
+            card.className = `element-card rounded-md p-1 border flex flex-col justify-between text-left transition select-none bg-slate-900 border-slate-800`;
+            card.dataset.num = elem.num;
+            card.onclick = () => showElementDetail(elem);
+
+            card.innerHTML = `
+                <div class="flex justify-between items-center text-[9px] text-slate-400 font-mono">
+                    <span>${elem.num}</span>
+                </div>
+                <div class="text-center">
+                    <span class="font-bold text-sm md:text-base text-slate-100 block leading-none">${elem.sym}</span>
+                    <span class="text-[8px] text-slate-400 truncate block mt-0.5">${elem.name}</span>
+                </div>
+                <div class="text-[8px] text-center text-slate-500 font-mono truncate" id="card-sub-${elem.num}">${elem.mass}</div>
+            `;
+            return card;
+        }
+
+        function updatePeriodicView() {
+            const mode = document.getElementById("property-mode").value;
+            const legendItems = document.getElementById("legend-items");
+            const legendTitle = document.getElementById("legend-title");
+            legendItems.innerHTML = "";
+
+            elementsData.forEach(elem => {
+                const card = document.querySelector(`.element-card[data-num="${elem.num}"]`);
+                const subText = document.getElementById(`card-sub-${elem.num}`);
+                if (!card) return;
+
+                if (mode === "default") {
+                    legendTitle.textContent = "สัญลักษณ์ประเภทธาตุ:";
+                    card.style.backgroundColor = getCategoryBg(elem.category);
+                    card.style.borderColor = "rgba(255,255,255,0.1)";
+                    if (subText) subText.textContent = elem.mass;
+                } 
+                else if (mode === "radius") {
+                    legendTitle.textContent = "รัศมีอะตอม (pm): น้อย (เขียว) -> มาก (แดง)";
+                    const intensity = Math.min(255, Math.max(50, Math.floor((elem.radius / 300) * 255)));
+                    card.style.backgroundColor = `rgb(${intensity}, ${200 - intensity/2}, ${255 - intensity})`;
+                    card.style.borderColor = "transparent";
+                    if (subText) subText.textContent = `${elem.radius} pm`;
+                }
+                else if (mode === "ie") {
+                    legendTitle.textContent = "พลังงาน IE1 (kJ/mol): น้อย (น้ำเงิน) -> มาก (ม่วงแดง)";
+                    const intensity = Math.min(255, Math.floor((elem.ie / 2400) * 255));
+                    card.style.backgroundColor = `rgb(${intensity}, 80, ${255 - intensity/2})`;
+                    card.style.borderColor = "transparent";
+                    if (subText) subText.textContent = `${elem.ie}`;
+                }
+                else if (mode === "en") {
+                    legendTitle.textContent = "ค่า EN: น้อย (ส้ม) -> มาก (เขียวสด)";
+                    const intensity = Math.floor((elem.en / 4.0) * 255);
+                    card.style.backgroundColor = `rgb(${255 - intensity}, ${intensity}, 150)`;
+                    card.style.borderColor = "transparent";
+                    if (subText) subText.textContent = `${elem.en}`;
+                }
+                else if (mode === "ea") {
+                    legendTitle.textContent = "ค่า EA (kJ/mol):";
+                    const intensity = Math.min(255, Math.floor((elem.ea / 350) * 255));
+                    card.style.backgroundColor = `rgb(${intensity}, 120, ${200 - intensity/2})`;
+                    card.style.borderColor = "transparent";
+                    if (subText) subText.textContent = `${elem.ea}`;
+                }
+                else if (mode === "ox") {
+                    legendTitle.textContent = "เลขออกซิเดชันเด่น:";
+                    card.style.backgroundColor = "#1e293b";
+                    card.style.borderColor = "#38bdf8";
+                    if (subText) subText.textContent = elem.ox;
+                }
+                else if (mode === "transition") {
+                    legendTitle.textContent = "ธาตุแทรนซิชัน (Transition):";
+                    card.style.backgroundColor = elem.transition ? "#0284c7" : "#0f172a";
+                    card.style.borderColor = elem.transition ? "#38bdf8" : "#1e293b";
+                    if (subText) subText.textContent = elem.transition ? "Transition" : "-";
+                }
+                else if (mode === "radioactive") {
+                    legendTitle.textContent = "ธาตุกัมมันตรังสี (Radioactive):";
+                    card.style.backgroundColor = elem.radioactive ? "#dc2626" : "#0f172a";
+                    card.style.borderColor = elem.radioactive ? "#f87171" : "#1e293b";
+                    if (subText) subText.textContent = elem.radioactive ? "กัมมันตรังสี" : "เสถียร";
+                }
+            });
+
+            if (mode === "default") {
+                const categories = [
+                    { name: "โลหะอัลคาไล", bg: "#991b1b" },
+                    { name: "โลหะอัลคาไลน์เอิร์ท", bg: "#9a3412" },
+                    { name: "แทรนซิชัน", bg: "#075985" },
+                    { name: "กึ่งโลหะ", bg: "#854d0e" },
+                    { name: "อโลหะ", bg: "#166534" },
+                    { name: "ฮาโลเจน", bg: "#5b21b6" },
+                    { name: "แก๊สเฉียบ", bg: "#831843" }
+                ];
+                categories.forEach(c => {
+                    legendItems.innerHTML += `<div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded" style="background:${c.bg}"></span><span>${c.name}</span></div>`;
+                });
+            }
+        }
+
+        function getCategoryBg(cat) {
+            switch(cat) {
+                case 'alkali': return '#991b1b';
+                case 'alkaline': return '#9a3412';
+                case 'transition': return '#075985';
+                case 'post-transition': return '#1e3a8a';
+                case 'metalloid': return '#854d0e';
+                case 'nonmetal': return '#166534';
+                case 'halogen': return '#5b21b6';
+                case 'noble': return '#831843';
+                case 'lanthanide': return '#4c1d95';
+                case 'actinide': return '#701a75';
+                default: return '#1e293b';
+            }
+        }
+
+        function showElementDetail(elem) {
+            const modal = document.getElementById("element-detail-modal");
+            const content = document.getElementById("element-detail-content");
+            modal.classList.remove("hidden");
+
+            content.innerHTML = `
+                <div class="flex flex-col items-center justify-center p-6 bg-slate-950 rounded-xl border border-sky-500/30 text-center">
+                    <span class="text-xs text-sky-400 font-mono">เลขอะตอม: ${elem.num}</span>
+                    <h3 class="text-5xl font-bold text-white my-2">${elem.sym}</h3>
+                    <p class="text-lg font-medium text-slate-200">${elem.name}</p>
+                    <p class="text-xs text-slate-400 mt-1">มวลอะตอม: ${elem.mass} g/mol</p>
+                </div>
+                <div class="md:col-span-2 space-y-3 text-sm">
+                    <h4 class="font-bold text-sky-400 text-base border-b border-slate-800 pb-2">ข้อมูลทางกายภาพและเคมี</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 text-xs block">รัศมีอะตอม</span>
+                            <span class="font-semibold text-slate-100">${elem.radius} pm</span>
+                        </div>
+                        <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 text-xs block">พลังงาน IE1</span>
+                            <span class="font-semibold text-slate-100">${elem.ie} kJ/mol</span>
+                        </div>
+                        <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 text-xs block">อิเล็กโทรเนกาติวิตี (EN)</span>
+                            <span class="font-semibold text-slate-100">${elem.en}</span>
+                        </div>
+                        <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 text-xs block">สัมพรรคภาพอิเล็กตรอน (EA)</span>
+                            <span class="font-semibold text-slate-100">${elem.ea} kJ/mol</span>
+                        </div>
+                        <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 text-xs block">เลขออกซิเดชันเด่น</span>
+                            <span class="font-semibold text-slate-100">${elem.ox}</span>
+                        </div>
+                        <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 text-xs block">คุณสมบัติพิเศษ</span>
+                            <span class="font-semibold text-slate-100">${elem.radioactive ? 'กัมมันตรังสี' : 'ธาตุเสถียร'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            modal.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeElementDetail() {
+            document.getElementById("element-detail-modal").classList.add("hidden");
+        }
+
+        /* ==========================================================================
+           8. LESSONS VIEW LOGIC
+           ========================================================================== */
+        function renderLessonTab() {
+            const btnContainer = document.getElementById("lesson-chapter-buttons");
+            btnContainer.innerHTML = "";
+
+            lessonsData.forEach(chapter => {
+                const btn = document.createElement("button");
+                btn.className = `px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${chapter.id === currentChapter ? 'bg-sky-500 text-slate-950 shadow-lg shadow-sky-500/20' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`;
+                btn.textContent = `บทที่ ${chapter.id}`;
+                btn.onclick = () => {
+                    currentChapter = chapter.id;
+                    renderLessonTab();
+                };
+                btnContainer.appendChild(btn);
+            });
+
+            const display = document.getElementById("lesson-display-container");
+            const lesson = lessonsData.find(l => l.id === currentChapter);
+            
+            display.innerHTML = `
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <h3 class="text-xl font-bold text-white">${lesson.title}</h3>
+                    <button onclick="startQuiz(${lesson.id})" class="bg-gradient-to-r from-teal-400 to-sky-500 hover:from-teal-300 hover:to-sky-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow-md">
+                        <i class="fa-solid fa-gamepad mr-1"></i> ทำแบบทดสอบบทนี้ (20 ข้อ)
+                    </button>
+                </div>
+                <div>${lesson.summary}</div>
+            `;
+        }
+
+        /* ==========================================================================
+           9. QUIZ ENGINE LOGIC
+           ========================================================================== */
+        function renderQuizTab() {
+            const container = document.getElementById("quiz-chapter-cards");
+            container.innerHTML = "";
+
+            lessonsData.forEach(chapter => {
+                const card = document.createElement("div");
+                card.className = "bg-slate-900 border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 space-y-4 transition flex flex-col justify-between";
+                card.innerHTML = `
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold text-sky-400 uppercase tracking-wider">บทเรียนที่ ${chapter.id}</span>
+                        <h4 class="font-bold text-slate-100 text-base leading-snug">${chapter.title}</h4>
+                        <p class="text-xs text-slate-400">แบบทดสอบปรนัย 20 ข้อ พร้อมคำอธิบายเฉลยอย่างละเอียด</p>
+                    </div>
+                    <button onclick="startQuiz(${chapter.id})" class="w-full bg-slate-800 hover:bg-sky-500 hover:text-slate-950 text-sky-400 font-bold py-2.5 rounded-xl text-xs transition border border-sky-500/30 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> เริ่มทำแบบทดสอบ
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function startQuiz(chapterId) {
+            currentChapter = chapterId;
+            currentQuizIndex = 0;
+            currentQuizScore = 0;
+            activeQuizQuestions = quizzesData[chapterId];
+
+            document.getElementById("quiz-selection-view").classList.add("hidden");
+            document.getElementById("quiz-result-view").classList.add("hidden");
+            document.getElementById("quiz-play-view").classList.remove("hidden");
+            
+            document.getElementById("quiz-chapter-title").textContent = `บทที่ ${chapterId}: ${lessonsData.find(l => l.id === chapterId).title}`;
+            showQuestion();
+            switchTab('quizzes');
+        }
+
+        function showQuestion() {
+            const q = activeQuizQuestions[currentQuizIndex];
+            document.getElementById("quiz-current-num").textContent = currentQuizIndex + 1;
+            document.getElementById("quiz-progress-bar").style.width = `${((currentQuizIndex + 1) / 20) * 100}%`;
+            
+            document.getElementById("quiz-question-text").textContent = q.q;
+            
+            const optionsContainer = document.getElementById("quiz-options-container");
+            optionsContainer.innerHTML = "";
+
+            document.getElementById("quiz-explanation-box").classList.add("hidden");
+            document.getElementById("quiz-next-btn").classList.add("hidden");
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "quiz-opt-btn w-full text-left p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800 hover:border-slate-700 text-sm text-slate-200 transition font-medium flex items-center justify-between";
+                btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-600 text-xs"></i>`;
+                btn.onclick = () => selectOption(idx);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(selectedIdx) {
+            const q = activeQuizQuestions[currentQuizIndex];
+            const buttons = document.querySelectorAll(".quiz-opt-btn");
+
+            // Disable all buttons after choice
+            buttons.forEach(b => b.onclick = null);
+
+            const isCorrect = (selectedIdx === q.answer);
+            if (isCorrect) currentQuizScore++;
+
+            // Highlight Correct and Wrong choices
+            buttons[selectedIdx].classList.remove("bg-slate-950/60", "border-slate-800");
+            if (isCorrect) {
+                buttons[selectedIdx].classList.add("bg-emerald-950/80", "border-emerald-500", "text-emerald-300");
+                buttons[selectedIdx].querySelector("i").className = "fa-solid fa-circle-check text-emerald-400";
+            } else {
+                buttons[selectedIdx].classList.add("bg-rose-950/80", "border-rose-500", "text-rose-300");
+                buttons[selectedIdx].querySelector("i").className = "fa-solid fa-circle-xmark text-rose-400";
+
+                // Highlight correct one
+                buttons[q.answer].classList.remove("bg-slate-950/60", "border-slate-800");
+                buttons[q.answer].classList.add("bg-emerald-950/80", "border-emerald-500", "text-emerald-300");
+                buttons[q.answer].querySelector("i").className = "fa-solid fa-circle-check text-emerald-400";
+            }
+
+            // Show Detailed Explanation
+            const expBox = document.getElementById("quiz-explanation-box");
+            const expHeader = document.getElementById("quiz-result-header");
+            const expText = document.getElementById("quiz-explanation-text");
+
+            expBox.classList.remove("hidden");
+            if (isCorrect) {
+                expHeader.className = "font-bold flex items-center gap-2 text-emerald-400 text-sm";
+                expHeader.innerHTML = `<i class="fa-solid fa-circle-check"></i> ตอบถูกต้อง! (+10 คะแนน)`;
+            } else {
+                expHeader.className = "font-bold flex items-center gap-2 text-rose-400 text-sm";
+                expHeader.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ตอบไม่ถูกต้อง`;
+            }
+
+            expText.textContent = `คำอธิบายเฉลย: ${q.exp}`;
+            document.getElementById("quiz-next-btn").classList.remove("hidden");
+        }
+
+        function nextQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex < activeQuizQuestions.length) {
+                showQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById("quiz-play-view").classList.add("hidden");
+            document.getElementById("quiz-result-view").classList.remove("hidden");
+
+            const totalScoreAdded = currentQuizScore * 10;
+            userTotalScore += totalScoreAdded;
+
+            document.getElementById("result-chapter-name").textContent = lessonsData.find(l => l.id === currentChapter).title;
+            document.getElementById("result-score-num").textContent = `${currentQuizScore} / 20`;
+            
+            const pct = Math.round((currentQuizScore / 20) * 100);
+            document.getElementById("result-percentage").textContent = `${pct}%`;
+
+            const msg = document.getElementById("result-feedback-msg");
+            if (pct >= 80) {
+                msg.textContent = '"ยอดเยี่ยมมาก! คุณมีความเข้าใจในบทเรียนนี้เป็นอย่างดี"';
+            } else if (pct >= 50) {
+                msg.textContent = '"ทำได้ดี! ลองทบทวนเนื้อหาเพิ่มเติมเพื่อเพิ่มความแม่นยำ"';
+            } else {
+                msg.textContent = '"พยายามอีกนิด! ย้อนกลับไปอ่านสรุปบทเรียนแล้วลองทำใหม่อีกครั้งนะ"';
+            }
+
+            updateUserScoreUI();
+        }
+
+        function quitQuiz() {
+            document.getElementById("quiz-play-view").classList.add("hidden");
+            document.getElementById("quiz-selection-view").classList.remove("hidden");
+        }
+
+        function backToQuizSelect() {
+            document.getElementById("quiz-result-view").classList.add("hidden");
+            document.getElementById("quiz-selection-view").classList.remove("hidden");
+        }
+
+        function retryCurrentQuiz() {
+            startQuiz(currentChapter);
+        }
+
+        /* ==========================================================================
+           10. USER SCORE & PROFILE LOGIC
+           ========================================================================== */
+        function updateUserScoreUI() {
+            document.getElementById("user-score").textContent = userTotalScore;
+
+            // Determine Rank
+            let currentRank = ranksData[0];
+            for (let r of ranksData) {
+                if (userTotalScore >= r.minScore) {
+                    currentRank = r;
+                }
+            }
+
+            document.getElementById("user-rank-title").textContent = currentRank.title;
+            document.getElementById("profile-current-rank").textContent = `ยศปัจจุบัน: ${currentRank.title}`;
+            renderProfileTab();
+        }
+
+        function renderProfileTab() {
+            const container = document.getElementById("rank-roadmap");
+            container.innerHTML = "";
+
+            ranksData.forEach(r => {
+                const isUnlocked = userTotalScore >= r.minScore;
+                const card = document.createElement("div");
+                card.className = `p-4 rounded-xl border flex items-center gap-4 transition ${isUnlocked ? 'bg-slate-900 border-sky-500/40' : 'bg-slate-950/40 border-slate-800 opacity-60'}`;
+                card.innerHTML = `
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-slate-950 border border-slate-800 ${r.color}">
+                        <i class="fa-solid ${r.icon}"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-white text-sm">${r.title}</h5>
+                        <p class="text-xs text-slate-400">ต้องใช้ ${r.minScore} คะแนน ${isUnlocked ? '(ปลดล็อกแล้ว)' : ''}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
